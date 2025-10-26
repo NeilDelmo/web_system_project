@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('ingredient_usage', function (Blueprint $table) {
-            $table->integer('usage_id');
-            $table->integer('ingredient_id')->nullable();
-            $table->integer('used_by')->nullable();
-            $table->decimal('quantity_used', 10)->nullable();
-            $table->timestamp('usage_date')->useCurrent();
-        });
+     Schema::table('ingredient_usage', function (Blueprint $table) {
+        $table->unsignedBigInteger('ingredient_id')->change();
+        $table->unsignedBigInteger('used_by')->change();
+        $table->foreign('ingredient_id')->references('ingredient_id')->on('ingredients')->onDelete('cascade');
+        $table->foreign('used_by')->references('user_id')->on('users')->onDelete('cascade');
+    });
     }
 
     /**
@@ -25,6 +24,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('ingredient_usage');
+         Schema::table('ingredient_usage', function (Blueprint $table) {
+        $table->dropForeign(['ingredient_id']);
+        $table->dropForeign(['used_by']);
+    });
     }
 };
