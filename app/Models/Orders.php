@@ -4,30 +4,36 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
+use OwenIt\Auditing\Auditable as AuditableTrait;
 
-class Orders extends Model
+class Orders extends Model implements AuditableContract
 {
-    use HasFactory;
+    use HasFactory, AuditableTrait;
 
     protected $table = 'orders';
-    protected $primaryKey = 'order_id';
-    public $incrementing = true;
-    protected $keyType = 'int';
 
     protected $fillable = [
-        'customer_id',
-        'order_date',
         'order_type',
-        'status',
+        'customer_name',
+        'customer_phone',
         'total_amount',
-        'handled_by'
+        'status',
+        'notes',
+        'staff_id',
     ];
 
     protected $casts = [
-        'order_id' => 'integer',
-        'customer_id' => 'integer',
-        'order_date' => 'datetime',
+        'total_amount' => 'decimal:2',
+        'order_type' => 'string',
         'status' => 'string',
-        'total_amount' => 'decimal:2'
     ];
+
+    /**
+     * Get the staff member who handled this order
+     */
+    public function staff()
+    {
+        return $this->belongsTo(User::class, 'staff_id');
+    }
 }
