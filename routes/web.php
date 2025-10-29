@@ -16,13 +16,69 @@ Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
+// All authenticated routes with back history prevention
+Route::middleware(['auth', 'preventBackHistory'])->group(function () {
+    
+    // Dashboard - accessible by all authenticated users
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-//products route
-Route::get('products', [ProductController::class, 'index'])->middleware('auth')->name('products');
+    // Products route - accessible by all authenticated users
+    Route::get('products', [ProductController::class, 'index'])->name('products');
 
-//inventory route
-Route::get('/inventory', [InventoryController::class, 'index'])->middleware('auth')->name('inventory'); 
+    // Inventory route - requires 'manage_inventory' permission
+    Route::get('/inventory', [InventoryController::class, 'index'])
+        ->middleware('permission:manage_inventory')
+        ->name('inventory');
 
-//sale and order route
-Route::get('/sale_and_orders', [Sale_OrderController::class, 'index'])->middleware('auth')->name('sale_and_orders');
+    // Sales and order routes - requires 'manage_orders' permission
+    Route::get('/sale_and_orders', [Sale_OrderController::class, 'index'])
+        ->middleware('permission:manage_orders')
+        ->name('sale_and_orders');
+    Route::get('/sales', [Sale_OrderController::class, 'index'])
+        ->middleware('permission:manage_orders')
+        ->name('sales'); // Alias route
+
+    // Production route - accessible by all authenticated users
+    Route::get('/production', function () {
+        return view('production');
+    })->name('production');
+
+    // Reports route - requires 'view_reports' permission
+    Route::get('/reports', function () {
+        return view('reports');
+    })->middleware('permission:view_reports')->name('reports');
+    
+});
+
+// ========================================
+// TEST ROUTES FOR ERROR PAGES
+// Remove these routes in production!
+// ========================================
+Route::prefix('test-errors')->group(function () {
+    
+    // Test 401 - Unauthorized (must be logged out to see this)
+    Route::get('/401', function () {
+        abort(401);
+    })->name('test.401');
+    
+    // Test 403 - Forbidden (must be logged in but lack permission)
+    Route::get('/403', function () {
+        abort(403);
+    })->middleware('auth')->name('test.403');
+    
+    // Test 404 - Not Found
+    Route::get('/404', function () {
+        abort(404);
+    })->name('test.404');
+    
+    // Test 500 - Server Error
+    Route::get('/500', function () {
+        abort(500);
+    })->name('test.500');
+    
+    // Test 503 - Service Unavailable
+    Route::get('/503', function () {
+        abort(503);
+    })->name('test.503');
+    
+});

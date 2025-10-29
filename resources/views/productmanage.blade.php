@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Products Management | Cuevas Bread</title>
+    <title>Products Management</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -153,13 +153,13 @@
         <a href="/dashboard" class="nav-link">
             <i class="bi bi-speedometer2 me-2"></i>Dashboard
         </a>
-        <a href="/products" class="nav-link">
+        <a href="/products" class="nav-link active">
             <i class="bi bi-basket-fill me-2"></i>Products
         </a>
         <a href="/inventory" class="nav-link">
             <i class="bi bi-box-seam me-2"></i>Inventory
         </a>
-        <a href="/sale_and_orders" class="nav-link">
+        <a href="/sales" class="nav-link">
             <i class="bi bi-cart-check-fill me-2"></i>Sales & Orders
         </a>
         <a href="/production" class="nav-link">
@@ -171,10 +171,25 @@
     </nav>
 
     <div class="sidebar-footer">
-        <div class="d-flex flex-column align-items-center">
-            <img src="{{ asset('images/user-avatar.jpg') }}" alt="User" class="rounded-circle mb-2" width="50" height="50">
-            <strong>Admin</strong>
-            <small class="text-muted">Manager</small>
+        <div class="dropdown text-center">
+            <a href="#" class="d-flex flex-column align-items-center text-decoration-none text-dark dropdown-toggle" id="adminMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                <img src="{{ asset('images/user-avatar.jpg') }}" alt="User" class="rounded-circle mb-2" width="50" height="50">
+                <strong>Admin</strong>
+                <small class="text-muted">Manager</small>
+            </a>
+
+            <ul class="dropdown-menu shadow border-0 mt-2 text-center" aria-labelledby="adminMenu">
+                <li><a class="dropdown-item py-2" href="#"><i class="bi bi-person-circle me-1"></i> Profile</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="dropdown-item text-danger py-2">
+                            <i class="bi bi-box-arrow-right me-1"></i> Logout
+                        </button>
+                    </form>
+                </li>
+            </ul>
         </div>
     </div>
 </aside>
@@ -186,9 +201,6 @@
                 <h2>Products Management</h2>
                 <p class="text-muted mb-0 small">Manage your bakery’s products, categories, recipes, and pricing.</p>
             </div>
-            <button class="btn btn-danger">
-                <i class="bi bi-plus-circle me-1"></i> Add Product
-            </button>
         </div>
 
         <ul class="nav nav-tabs tab-nav bg-white px-4 border-bottom" id="productTabs" role="tablist">
@@ -200,49 +212,23 @@
 
         <div class="tab-content p-4" id="productTabsContent">
             <!-- Product List -->
-            <div class="tab-pane fade show active" id="list" role="tabpanel">
-                <h5 class="fw-semibold mb-3">All Products</h5>
+            <div class="tab-pane fade show active" id="list">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-semibold mb-0">All Products</h5>
+                    <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                        <i class="bi bi-plus-circle me-1"></i> Add Product
+                    </button>
+                </div>
+
                 <div class="row g-4">
                     <div class="col-md-4">
                         <div class="card product-card text-center">
                             <div class="card-body">
                                 <img src="{{ asset('images/pandesal.jpg') }}" class="card-img-top" alt="Pan de Sal">
-                                <h6>Pan de Sal</h6>
+                                <h6>Pandesal</h6>
                                 <p class="text-muted small mb-1">Breads</p>
                                 <h6 class="text-success fw-bold">₱50</h6>
                                 <span class="badge bg-success-subtle text-success mb-3">150 in stock</span>
-                                <div class="d-flex justify-content-center gap-2">
-                                    <button class="btn btn-sm btn-warning text-white">View</button>
-                                    <button class="btn btn-sm btn-outline-secondary">Edit</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-4">
-                        <div class="card product-card text-center">
-                            <div class="card-body">
-                                <img src="{{ asset('images/cheeseroll.jpg') }}" class="card-img-top" alt="Cheese Roll">
-                                <h6>Cheese Roll</h6>
-                                <p class="text-muted small mb-1">Breads</p>
-                                <h6 class="text-success fw-bold">₱35</h6>
-                                <span class="badge bg-success-subtle text-success mb-3">80 in stock</span>
-                                <div class="d-flex justify-content-center gap-2">
-                                    <button class="btn btn-sm btn-warning text-white">View</button>
-                                    <button class="btn btn-sm btn-outline-secondary">Edit</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-4">
-                        <div class="card product-card text-center">
-                            <div class="card-body">
-                                <img src="{{ asset('images/chocodrink.jpg') }}" class="card-img-top" alt="Chocolate Drink">
-                                <h6>Chocolate Drink</h6>
-                                <p class="text-muted small mb-1">Refreshing chocolate beverage</p>
-                                <h6 class="text-success fw-bold">₱45</h6>
-                                <span class="badge bg-success-subtle text-success mb-3">120 in stock</span>
                                 <div class="d-flex justify-content-center gap-2">
                                     <button class="btn btn-sm btn-warning text-white">View</button>
                                     <button class="btn btn-sm btn-outline-secondary">Edit</button>
@@ -257,38 +243,14 @@
             <div class="tab-pane fade" id="categories" role="tabpanel">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="fw-semibold mb-0">Categories Management</h5>
-                    <button class="btn btn-danger"><i class="bi bi-plus-circle me-1"></i> Add Category</button>
+                    <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                        <i class="bi bi-plus-circle me-1"></i> Add Category
+                    </button>
                 </div>
 
                 <p class="text-muted mb-4">Manage and organize your bakery’s product categories.</p>
                 <div class="row g-4">
-                    <div class="col-md-4">
-                        <div class="card category-card text-center">
-                            <div class="card-body">
-                                <img src="{{ asset('images/breads.jpg') }}" class="card-img-top" alt="Breads">
-                                <h6 class="fw-semibold">Breads</h6>
-                                <p class="text-muted small mb-3">12 products</p>
-                                <div class="d-flex justify-content-center gap-2">
-                                    <button class="btn btn-sm btn-outline-secondary">Edit</button>
-                                    <button class="btn btn-sm btn-outline-danger">Delete</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-4">
-                        <div class="card category-card text-center">
-                            <div class="card-body">
-                                <img src="{{ asset('images/pastries.jpg') }}" class="card-img-top" alt="Pastries">
-                                <h6 class="fw-semibold">Pastries</h6>
-                                <p class="text-muted small mb-3">8 products</p>
-                                <div class="d-flex justify-content-center gap-2">
-                                    <button class="btn btn-sm btn-outline-secondary">Edit</button>
-                                    <button class="btn btn-sm btn-outline-danger">Delete</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- existing category cards -->
                 </div>
             </div>
 
@@ -296,7 +258,9 @@
             <div class="tab-pane fade" id="recipes" role="tabpanel">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="fw-semibold mb-0">Recipes & Ingredients</h5>
-                    <button class="btn btn-danger"><i class="bi bi-plus-circle me-1"></i> Add Recipe</button>
+                    <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#addRecipeModal">
+                        <i class="bi bi-plus-circle me-1"></i> Add Recipe
+                    </button>
                 </div>
                 <p class="text-muted mb-4">Manage the recipes and ingredients used for your bakery products.</p>
 
@@ -323,7 +287,9 @@
             <div class="tab-pane fade" id="pricing" role="tabpanel">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="fw-semibold mb-0">Pricing Management</h5>
-                    <button class="btn btn-danger"><i class="bi bi-plus-circle me-1"></i> Add Pricing Rule</button>
+                    <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#addPricingRuleModal">
+                        <i class="bi bi-plus-circle me-1"></i> Add Pricing Rule
+                    </button>
                 </div>
                 <p class="text-muted mb-4">Adjust product prices, manage discounts, and set special offers here.</p>
             </div>
@@ -333,6 +299,242 @@
             &copy; {{ date('Y') }} Cuevas Bread. All rights reserved.
         </footer>
     </main>
+
+
+<!-- ✅ Add Product Modal -->
+    <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <div class="modal-header bg-warning-subtle">
+                    <h5 class="modal-title fw-semibold" id="addProductModalLabel">
+                        <i class="bi bi-plus-circle text-danger me-2"></i> Add New Product
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Product Name</label>
+                        <input type="text" class="form-control" placeholder="Enter product name">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Category</label>
+                        <select class="form-select">
+                        <option selected disabled>Select Category</option>
+                            <!--Siguro dito is yung nasa category list-->
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Price (₱)</label>
+                        <input type="number" class="form-control" placeholder="Enter price">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Stock Quantity</label>
+                        <input type="number" class="form-control" placeholder="Enter stock">
+                    </div>
+                    <div class="text-end">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Save Product</button>
+                    </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ✅ Add Category Modal -->
+    <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <div class="modal-header bg-warning-subtle">
+                    <h5 class="modal-title fw-semibold" id="addCategoryModalLabel">
+                        <i class="bi bi-plus-circle text-danger me-2"></i> Add New Category
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body p-4">
+                    <form>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Category Name</label>
+                        <input type="text" class="form-control" placeholder="Enter category name">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Description</label>
+                        <textarea class="form-control" rows="3" placeholder="Enter category description"></textarea>
+                    </div>
+                    <div class="text-end">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Save Category</button>
+                    </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Add Recipe Modal -->
+    <div class="modal fade" id="addRecipeModal" tabindex="-1" aria-labelledby="addRecipeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header bg-warning-subtle">
+                    <h5 class="modal-title fw-semibold" id="addRecipeModalLabel">
+                        <i class="bi bi-journal-text text-danger me-2"></i> Add New Recipe
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <form id="addRecipeForm">
+                    <div class="modal-body px-4 py-3">
+                        <!-- Recipe Info -->
+                        <h6 class="fw-semibold mb-3 text-danger">Recipe Information</h6>
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-semibold">Recipe Name</label>
+                                <input type="text" class="form-control" name="recipe_name" placeholder="Enter recipe name" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-semibold">Category</label>
+                                <select class="form-select" name="category" required>
+                                    <option selected disabled>Select category</option>
+
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Ingredients Table -->
+                        <h6 class="fw-semibold mb-3 text-danger">Ingredients</h6>
+                        <div class="table-responsive mb-3">
+                            <table class="table table-bordered align-middle">
+                                <thead class="table-warning text-center">
+                                    <tr>
+                                        <th>Ingredient</th>
+                                        <th>Quantity</th>
+                                        <th>Unit</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recipeIngredientsTable">
+                                    <tr>
+                                        <td>
+                                            <select class="form-select" name="ingredient[]">
+                                                <option selected disabled>Select ingredient</option>
+                                                <!--Siguro dito is yung nasa inventory list-->
+                                            </select>
+                                        </td>
+                                        <td><input type="number" class="form-control text-center" name="quantity[]" min="0" placeholder="0" required></td>
+                                        <td>
+                                            <select class="form-select" name="unit[]">
+                                                <option selected disabled>Select unit</option>
+                                                <option>g</option>
+                                                <option>kg</option>
+                                                <option>ml</option>
+                                                <option>pcs</option>
+                                            </select>
+                                        </td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-sm btn-outline-danger removeIngredientRow">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <button type="button" class="btn btn-sm btn-outline-warning" id="addIngredientBtn">
+                                <i class="bi bi-plus-circle me-1"></i> Add Ingredient
+                            </button>
+                        </div>
+
+                        <!-- Recipe Notes -->
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Notes / Instructions</label>
+                            <textarea class="form-control" name="notes" rows="3" placeholder="e.g. Bake at 180°C for 20 minutes."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer bg-light border-top-0">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger px-4">
+                            <i class="bi bi-check-circle me-1"></i> Save Recipe
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Add Pricing Rule Modal -->
+    <div class="modal fade" id="addPricingRuleModal" tabindex="-1" aria-labelledby="addPricingRuleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header bg-warning-subtle">
+                    <h5 class="modal-title fw-semibold" id="addPricingRuleModalLabel">
+                        <i class="bi bi-tag text-danger me-2"></i> Add Pricing Rule
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <form id="addPricingRuleForm">
+                    <div class="modal-body px-4 py-3">
+                        <!-- Rule Information -->
+                        <h6 class="fw-semibold mb-3 text-danger">Pricing Rule Information</h6>
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-semibold">Product</label>
+                                <select class="form-select" name="product" required>
+                                    <option selected disabled>Select product</option>
+                                    <option>Baguette</option>
+                                    <option>Cheese Bread</option>
+                                    <option>Ensaymada</option>
+                                    <option>Pan de Coco</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-semibold">Customer Type</label>
+                                <select class="form-select" name="customer_type" required>
+                                    <option selected disabled>Select customer type</option>
+                                    <option>Walk-in</option>
+                                    <option>Regular</option>
+                                    <option>Wholesale</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Rule Details -->
+                        <h6 class="fw-semibold mb-3 text-danger">Rule Details</h6>
+                        <div class="row mb-3">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label small fw-semibold">Minimum Quantity</label>
+                                <input type="number" class="form-control" name="min_quantity" min="1" placeholder="1" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label small fw-semibold">Discount Type</label>
+                                <select class="form-select" name="discount_type" required>
+                                    <option selected disabled>Select type</option>
+                                    <option value="percent">Percentage (%)</option>
+                                    <option value="fixed">Fixed Amount (₱)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label small fw-semibold">Discount Value</label>
+                                <input type="number" class="form-control" name="discount_value" min="0" placeholder="0" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Notes</label>
+                            <textarea class="form-control" name="notes" rows="2" placeholder="Optional notes for this pricing rule"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer bg-light border-top-0">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger px-4">
+                            <i class="bi bi-check-circle me-1"></i> Save Rule
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Bootstrap JS Bundle -->

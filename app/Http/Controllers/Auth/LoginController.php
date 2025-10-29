@@ -3,42 +3,49 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\SystemUser;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\DB;
 
 class LoginController extends Controller
 {
-    public function showLoginForm() 
+    public function showLoginForm()
     {
+        // If user is already logged in, redirect to dashboard
+        if (Auth::check()) {
+            return redirect()->route('dashboard')
+                ->with('info', 'You are already logged in!');
+        }
+
         return view('login');
     }
 
     public function login(Request $request)
     {
+        // If user is already logged in, redirect to dashboard
+        if (Auth::check()) {
+            return redirect()->route('dashboard');
+        }
+
         $credentials = $request->validate([
-            'username' => 'required|string',
+            'email' => 'required|email',
             'password' => 'required|string',
         ]);
 
-        // Custom authentication logic using the SystemUser model
-        $user = SystemUser::where('username', $credentials['username'])->first();
-
-        if ($user && Hash::check($credentials['password'], $user->password)) {
-            // Log in the resolved SystemUser instance
-            Auth::login($user);
-
+        // Attempt to authenticate using email and password
+        if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
 
+            $user = Auth::user();
+
             return redirect()->intended(route('dashboard'))
-                ->with('success', "Welcome, {$user->full_name}!");
+                ->with('success', "Welcome, {$user->fullname}!");
         }
 
         return back()->withErrors([
-            'username' => 'The provided credentials do not match our records.',
-        ]);
+            'email' => 'The provided credentials do not match our records.',
+        ])->onlyInput('email');
     }
 
     public function logout(Request $request)
