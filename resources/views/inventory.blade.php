@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventory Management | Cuevas Bread</title>
+    <title>Inventory Management</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
@@ -12,6 +12,7 @@
         body {
             background: linear-gradient(135deg, #fff9e6, #fff3cd, #fce6a4);
             font-family: 'Poppins', sans-serif;
+            
         }
 
         .sidebar {
@@ -70,6 +71,7 @@
         .main-content {
             flex-grow: 1;
             padding: 0;
+            
         }
 
         .page-header {
@@ -112,6 +114,7 @@
             transform: translateY(-3px);
             box-shadow: 0 4px 10px rgba(0,0,0,0.15);
         }
+        
     </style>
 </head>
 <body>
@@ -130,10 +133,10 @@
         <a href="/products" class="nav-link">
             <i class="bi bi-basket-fill me-2"></i>Products
         </a>
-        <a href="/inventory" class="nav-link">
+        <a href="/inventory" class="nav-link active">
             <i class="bi bi-box-seam me-2"></i>Inventory
         </a>
-        <a href="/sale_and_orders" class="nav-link">
+        <a href="/sales" class="nav-link">
             <i class="bi bi-cart-check-fill me-2"></i>Sales & Orders
         </a>
         <a href="/production" class="nav-link">
@@ -143,15 +146,31 @@
             <i class="bi bi-bar-chart-line-fill me-2"></i>Reports
         </a>
     </nav>
+        <div class="sidebar-footer">
+            <div class="dropdown text-center">
+                <a href="#" class="d-flex flex-column align-items-center text-decoration-none text-dark dropdown-toggle" id="adminMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                    <img src="{{ asset('images/user-avatar.jpg') }}" alt="User" class="rounded-circle mb-2" width="50" height="50">
+                    <strong>Admin</strong>
+                    <small class="text-muted">Manager</small>
+                </a>
 
-    <div class="sidebar-footer">
-        <div class="d-flex flex-column align-items-center">
-            <img src="{{ asset('images/user-avatar.jpg') }}" alt="User" class="rounded-circle mb-2" width="50" height="50">
-            <strong>Admin</strong>
-            <small class="text-muted">Manager</small>
+                <ul class="dropdown-menu shadow border-0 mt-2 text-center" aria-labelledby="adminMenu">
+                    <!-- Optional profile link -->
+                    <li><a class="dropdown-item py-2" href="#"><i class="bi bi-person-circle me-1"></i> Profile</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <!-- Logout link -->
+                    <li>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="dropdown-item text-danger py-2">
+                                <i class="bi bi-box-arrow-right me-1"></i> Logout
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
         </div>
-    </div>
-</aside>
+    </aside>
     <!-- Main Content -->
     <main class="main-content">
         <div class="page-header">
@@ -159,9 +178,6 @@
                 <h2>Inventory Management</h2>
                 <p class="text-muted mb-0 small">Monitor ingredients, stock levels, and supplier details efficiently.</p>
             </div>
-            <button class="btn btn-danger">
-                <i class="bi bi-plus-circle me-1"></i> Add Inventory Item
-            </button>
         </div>
 
         <ul class="nav nav-tabs tab-nav bg-white px-4 border-bottom" id="inventoryTabs" role="tablist">
@@ -175,7 +191,12 @@
         <div class="tab-content p-4" id="inventoryTabsContent">
             <!-- Ingredients Stock -->
             <div class="tab-pane fade show active" id="ingredients" role="tabpanel">
-                <h5 class="fw-semibold mb-3">Ingredients Stock</h5>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5>Ingredients Stock</h5>
+                        <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
+                        <i class="bi bi-plus-circle me-1"></i> Add Inventory Item
+                    </button>
+                </div>
                 <div class="row g-4">
                     <div class="col-md-4">
                         <div class="card inv-card">
@@ -298,12 +319,86 @@
                 </div>
             </div>
         </div>
-
         <footer class="text-center py-3 border-top bg-white small text-muted mt-5">
             &copy; {{ date('Y') }} Cuevas Bread. All rights reserved.
         </footer>
     </main>
+
+    <!-- Add Inventory Item Modal -->
+    <div class="modal fade" id="addInventoryModal" tabindex="-1" aria-labelledby="addInventoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header bg-warning-subtle">
+                    <h5 class="modal-title fw-semibold" id="addInventoryModalLabel">
+                        <i class="bi bi-box-seam text-danger me-2"></i> Add Inventory Item
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <form id="addInventoryForm">
+                    <div class="modal-body px-4 py-3">
+                        <!-- Inventory Info -->
+                        <h6 class="fw-semibold mb-3 text-danger">Item Information</h6>
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-semibold">Item Name</label>
+                                <input type="text" class="form-control" name="item_name" placeholder="Enter item name" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-semibold">Category</label>
+                                <select class="form-select" name="category" required>
+                                    <option selected disabled>Select category</option>
+                                    <!-- Add your categories here from the categories management -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label small fw-semibold">Quantity</label>
+                                <input type="number" class="form-control" name="quantity" min="0" placeholder="0" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label small fw-semibold">Unit</label>
+                                <select class="form-select" name="unit" required>
+                                    <option selected disabled>Select unit</option>
+                                    <option>pcs</option>
+                                    <option>kg</option>
+                                    <option>g</option>
+                                    <option>liters</option>
+                                    <option>ml</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label small fw-semibold">Price per Unit (₱)</label>
+                                <input type="text" class="form-control" name="price" placeholder="0.00" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Supplier</label>
+                            <input type="text" class="form-control" name="supplier" placeholder="Supplier name">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Notes</label>
+                            <textarea class="form-control" name="notes" rows="2" placeholder="Optional notes about the item"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer bg-light border-top-0">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger px-4">
+                            <i class="bi bi-check-circle me-1"></i> Add Item
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
 </div>
+
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
