@@ -214,7 +214,6 @@
             <ul class="nav nav-tabs tab-nav bg-white px-4 border-bottom" id="productTabs" role="tablist">
                 <li class="nav-item"><a class="nav-link active" id="list-tab" data-bs-toggle="tab" href="#list" role="tab">Product List</a></li>
                 <li class="nav-item"><a class="nav-link" id="cat-tab" data-bs-toggle="tab" href="#categories" role="tab">Categories</a></li>
-                <li class="nav-item"><a class="nav-link" id="ing-tab" data-bs-toggle="tab" href="#ingredients" role="tab">Ingredients</a></li>
                 <li class="nav-item"><a class="nav-link" id="rec-tab" data-bs-toggle="tab" href="#recipes" role="tab">Recipes</a></li>
                 <li class="nav-item"><a class="nav-link" id="price-tab" data-bs-toggle="tab" href="#pricing" role="tab">Pricing</a></li>
             </ul>
@@ -304,76 +303,6 @@
                             </div>
                             @endforelse
                         </div>
-                    </div>
-                </div>
-
-                <!-- Ingredients -->
-                <div class="tab-pane fade" id="ingredients" role="tabpanel">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="fw-semibold mb-0">Ingredients Inventory</h5>
-                        <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#addIngredientModal">
-                            <i class="bi bi-plus-circle me-1"></i> Add Ingredient
-                        </button>
-                    </div>
-                    <p class="text-muted mb-4">Manage your bakery's ingredient stock and inventory levels.</p>
-
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover align-middle">
-                            <thead class="table-warning">
-                                <tr>
-                                    <th>Ingredient Name</th>
-                                    <th>Category</th>
-                                    <th>Quantity</th>
-                                    <th>Unit</th>
-                                    <th>Reorder Level</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($ingredients as $ingredient)
-                                <tr>
-                                    <td><strong>{{ $ingredient->name }}</strong></td>
-                                    <td>{{ $ingredient->category }}</td>
-                                    <td>
-                                        <span class="badge 
-                                            @if($ingredient->quantity == 0) bg-danger
-                                            @elseif($ingredient->quantity <= $ingredient->reorder_level) bg-warning
-                                            @else bg-success
-                                            @endif">
-                                            {{ $ingredient->quantity }}
-                                        </span>
-                                    </td>
-                                    <td>{{ $ingredient->unit }}</td>
-                                    <td>{{ $ingredient->reorder_level }}</td>
-                                    <td>
-                                        <span class="badge 
-                                            @if($ingredient->status == 'out_of_stock') bg-danger
-                                            @elseif($ingredient->status == 'low_stock') bg-warning
-                                            @else bg-success
-                                            @endif">
-                                            {{ ucfirst(str_replace('_', ' ', $ingredient->status)) }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-sm btn-outline-secondary" title="Edit">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-danger" title="Delete">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="7" class="text-center text-muted py-4">
-                                        <i class="bi bi-basket fs-1 d-block mb-2"></i>
-                                        No ingredients found. Add your first ingredient!
-                                    </td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
                     </div>
                 </div>
 
@@ -777,68 +706,6 @@
                             <div class="text-end">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                                 <button type="submit" class="btn btn-danger">Update Category</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Add Ingredient Modal -->
-        <div class="modal fade" id="addIngredientModal" tabindex="-1" aria-labelledby="addIngredientModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content border-0 rounded-4 shadow">
-                    <div class="modal-header bg-warning-subtle">
-                        <h5 class="modal-title fw-semibold" id="addIngredientModalLabel">
-                            <i class="bi bi-plus-circle text-danger me-2"></i> Add New Ingredient
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-
-                    <div class="modal-body p-4">
-                        <form action="{{ route('ingredients.store') }}" method="POST">
-                            @csrf
-
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">Ingredient Name</label>
-                                <input type="text" class="form-control" name="name" placeholder="e.g., All-purpose Flour" required>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label fw-semibold">Category</label>
-                                    <input type="text" class="form-control" name="category" placeholder="e.g., Flour, Sugar, Dairy" required>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label fw-semibold">Unit</label>
-                                    <select class="form-select" name="unit" required>
-                                        <option value="">Select unit</option>
-                                        <option value="kg">Kilogram (kg)</option>
-                                        <option value="g">Gram (g)</option>
-                                        <option value="L">Liter (L)</option>
-                                        <option value="mL">Milliliter (mL)</option>
-                                        <option value="pcs">Pieces (pcs)</option>
-                                        <option value="bag">Bag</option>
-                                        <option value="box">Box</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label fw-semibold">Initial Quantity</label>
-                                    <input type="number" class="form-control" name="quantity" step="0.01" min="0" placeholder="0.00" required>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label fw-semibold">Reorder Level</label>
-                                    <input type="number" class="form-control" name="reorder_level" step="0.01" min="0" placeholder="0.00" required>
-                                    <small class="text-muted">Alert when stock reaches this level</small>
-                                </div>
-                            </div>
-
-                            <div class="text-end">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                <button type="submit" class="btn btn-danger">Save Ingredient</button>
                             </div>
                         </form>
                     </div>

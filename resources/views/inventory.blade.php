@@ -192,41 +192,70 @@
             <!-- Ingredients Stock -->
             <div class="tab-pane fade show active" id="ingredients" role="tabpanel">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5>Ingredients Stock</h5>
-                        <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
-                        <i class="bi bi-plus-circle me-1"></i> Add Inventory Item
+                    <h5 class="fw-semibold mb-0">Ingredients Inventory</h5>
+                    <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#addIngredientModal">
+                        <i class="bi bi-plus-circle me-1"></i> Add Ingredient
                     </button>
                 </div>
-                <div class="row g-4">
-                    <div class="col-md-4">
-                        <div class="card inv-card">
-                            <div class="card-body">
-                                <h6>Flour</h6>
-                                <p class="text-muted small">In Stock: 50 kg</p>
-                                <span class="badge bg-success-subtle text-success">Sufficient</span>
-                            </div>
-                        </div>
-                    </div>
+                <p class="text-muted mb-4">Manage your bakery's ingredient stock and inventory levels.</p>
 
-                    <div class="col-md-4">
-                        <div class="card inv-card">
-                            <div class="card-body">
-                                <h6>Sugar</h6>
-                                <p class="text-muted small">In Stock: 20 kg</p>
-                                <span class="badge bg-warning-subtle text-warning">Moderate</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-4">
-                        <div class="card inv-card">
-                            <div class="card-body">
-                                <h6>Butter</h6>
-                                <p class="text-muted small">In Stock: 5 kg</p>
-                                <span class="badge bg-danger-subtle text-danger">Low</span>
-                            </div>
-                        </div>
-                    </div>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover align-middle bg-white">
+                        <thead class="table-warning">
+                            <tr>
+                                <th>Ingredient Name</th>
+                                <th>Category</th>
+                                <th>Quantity</th>
+                                <th>Unit</th>
+                                <th>Reorder Level</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($ingredients as $ingredient)
+                            <tr>
+                                <td><strong>{{ $ingredient->name }}</strong></td>
+                                <td>{{ $ingredient->category }}</td>
+                                <td>
+                                    <span class="badge 
+                                        @if($ingredient->quantity == 0) bg-danger
+                                        @elseif($ingredient->quantity <= $ingredient->reorder_level) bg-warning
+                                        @else bg-success
+                                        @endif">
+                                        {{ $ingredient->quantity }}
+                                    </span>
+                                </td>
+                                <td>{{ $ingredient->unit }}</td>
+                                <td>{{ $ingredient->reorder_level }}</td>
+                                <td>
+                                    <span class="badge 
+                                        @if($ingredient->status == 'out_of_stock') bg-danger
+                                        @elseif($ingredient->status == 'low_stock') bg-warning
+                                        @else bg-success
+                                        @endif">
+                                        {{ ucfirst(str_replace('_', ' ', $ingredient->status)) }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-secondary" title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" title="Delete">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-4">
+                                    <i class="bi bi-basket fs-1 d-block mb-2"></i>
+                                    No ingredients found. Add your first ingredient!
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
@@ -324,75 +353,64 @@
         </footer>
     </main>
 
-    <!-- Add Inventory Item Modal -->
-    <div class="modal fade" id="addInventoryModal" tabindex="-1" aria-labelledby="addInventoryModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg rounded-4">
+    <!-- Add Ingredient Modal -->
+    <div class="modal fade" id="addIngredientModal" tabindex="-1" aria-labelledby="addIngredientModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow">
                 <div class="modal-header bg-warning-subtle">
-                    <h5 class="modal-title fw-semibold" id="addInventoryModalLabel">
-                        <i class="bi bi-box-seam text-danger me-2"></i> Add Inventory Item
+                    <h5 class="modal-title fw-semibold" id="addIngredientModalLabel">
+                        <i class="bi bi-plus-circle text-danger me-2"></i> Add New Ingredient
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
-                <form id="addInventoryForm">
-                    <div class="modal-body px-4 py-3">
-                        <!-- Inventory Info -->
-                        <h6 class="fw-semibold mb-3 text-danger">Item Information</h6>
-                        <div class="row mb-3">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label small fw-semibold">Item Name</label>
-                                <input type="text" class="form-control" name="item_name" placeholder="Enter item name" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label small fw-semibold">Category</label>
-                                <select class="form-select" name="category" required>
-                                    <option selected disabled>Select category</option>
-                                    <!-- Add your categories here from the categories management -->
-                                </select>
-                            </div>
+                <div class="modal-body p-4">
+                    <form action="{{ route('ingredients.store') }}" method="POST">
+                        @csrf
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Ingredient Name</label>
+                            <input type="text" class="form-control" name="name" placeholder="e.g., All-purpose Flour" required>
                         </div>
 
-                        <div class="row mb-3">
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label small fw-semibold">Quantity</label>
-                                <input type="number" class="form-control" name="quantity" min="0" placeholder="0" required>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">Category</label>
+                                <input type="text" class="form-control" name="category" placeholder="e.g., Flour, Sugar, Dairy" required>
                             </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label small fw-semibold">Unit</label>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">Unit</label>
                                 <select class="form-select" name="unit" required>
-                                    <option selected disabled>Select unit</option>
-                                    <option>pcs</option>
-                                    <option>kg</option>
-                                    <option>g</option>
-                                    <option>liters</option>
-                                    <option>ml</option>
+                                    <option value="">Select unit</option>
+                                    <option value="kg">Kilogram (kg)</option>
+                                    <option value="g">Gram (g)</option>
+                                    <option value="L">Liter (L)</option>
+                                    <option value="mL">Milliliter (mL)</option>
+                                    <option value="pcs">Pieces (pcs)</option>
+                                    <option value="bag">Bag</option>
+                                    <option value="box">Box</option>
                                 </select>
                             </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label small fw-semibold">Price per Unit (₱)</label>
-                                <input type="text" class="form-control" name="price" placeholder="0.00" required>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">Initial Quantity</label>
+                                <input type="number" class="form-control" name="quantity" step="0.01" min="0" placeholder="0.00" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">Reorder Level</label>
+                                <input type="number" class="form-control" name="reorder_level" step="0.01" min="0" placeholder="0.00" required>
+                                <small class="text-muted">Alert when stock reaches this level</small>
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label small fw-semibold">Supplier</label>
-                            <input type="text" class="form-control" name="supplier" placeholder="Supplier name">
+                        <div class="text-end">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-danger">Save Ingredient</button>
                         </div>
-
-                        <div class="mb-3">
-                            <label class="form-label small fw-semibold">Notes</label>
-                            <textarea class="form-control" name="notes" rows="2" placeholder="Optional notes about the item"></textarea>
-                        </div>
-                    </div>
-
-                    <div class="modal-footer bg-light border-top-0">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-danger px-4">
-                            <i class="bi bi-check-circle me-1"></i> Add Item
-                        </button>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

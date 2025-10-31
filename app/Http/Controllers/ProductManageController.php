@@ -124,7 +124,7 @@ class ProductManageController extends Controller
         // Create ingredient
         Ingredients::create($validated);
 
-        return redirect()->route('products.index', ['tab' => 'ingredients'])->with('success', 'Ingredient added successfully.');
+        return redirect()->route('inventory')->with('success', 'Ingredient added successfully.');
     }
 
     public function storeRecipe(Request $request)
