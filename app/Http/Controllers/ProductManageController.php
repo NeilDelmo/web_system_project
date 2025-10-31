@@ -8,6 +8,7 @@ use App\Models\Recipe;
 use App\Models\Ingredients;
 use App\Models\PricingRule;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProductManageController extends Controller
 {

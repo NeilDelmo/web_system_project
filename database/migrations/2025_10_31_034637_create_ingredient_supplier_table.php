@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('ingredient_supplier', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('ingredient_id')->constrained('ingredients')->onDelete('cascade');
+            $table->foreignId('supplier_id')->constrained('suppliers')->onDelete('cascade');
+            $table->decimal('unit_price', 10, 2)->nullable();
             $table->timestamps();
         });
     }

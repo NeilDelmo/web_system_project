@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('order_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('order_id')->constrained('orders')->onDelete('restrict'); // Delete items when order deleted
+            $table->foreignId('order_id')->constrained('orders')->onDelete('cascade'); // Delete items when order deleted
             $table->foreignId('product_id')->constrained('products')->onDelete('restrict'); // Can't delete product if in orders
             $table->integer('quantity');
             $table->decimal('unit_price', 8, 2); // Price at time of order
