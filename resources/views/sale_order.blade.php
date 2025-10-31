@@ -130,8 +130,8 @@
             <a href="/dashboard" class="nav-link"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
             <a href="/products" class="nav-link"><i class="bi bi-basket-fill me-2"></i>Products</a>
             <a href="/inventory" class="nav-link"><i class="bi bi-box-seam me-2"></i>Inventory</a>
-            <a href="/production" class="nav-link"><i class="bi bi-gear-fill me-2"></i>Production</a>
             <a href="/sales" class="nav-link active"><i class="bi bi-cart-check-fill me-2"></i>Sales & Orders</a>
+            <a href="/production" class="nav-link"><i class="bi bi-gear-fill me-2"></i>Production</a>
             <a href="/reports" class="nav-link"><i class="bi bi-bar-chart-line-fill me-2"></i>Reports</a>
         </nav>
 
