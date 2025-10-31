@@ -6,6 +6,7 @@ use App\Http\Controllers\ProductManageController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\ProductionController;
 use App\Http\Controllers\Sale_OrderController;
+use App\Http\Controllers\ReportsController;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\Route;
 
@@ -113,10 +114,13 @@ Route::middleware(['auth', 'preventBackHistory'])->group(function () {
     Route::get('/production/recipe-requirements/{product}', [ProductionController::class, 'getRecipeRequirements'])->name('production.requirements');
     Route::post('/production/produce', [ProductionController::class, 'produce'])->name('production.produce');
 
-    // Reports route - requires 'view_reports' permission
-    Route::get('/reports', function () {
-        return view('reports');
-    })->middleware('permission:view_reports')->name('reports');
+    // Reports routes - requires 'view_reports' permission
+    Route::get('/reports', [ReportsController::class, 'index'])
+        ->middleware('permission:view_reports')
+        ->name('reports');
+    Route::get('/reports/sales-data', [ReportsController::class, 'getSalesData'])
+        ->middleware('permission:view_reports')
+        ->name('reports.salesData');
     
 });
 
