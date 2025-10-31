@@ -86,6 +86,12 @@ class ProductionController extends Controller
             $recipe = $product->recipes->where('status', 'active')->first();
             
             if (!$recipe) {
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'error' => 'No active recipe found for this product.'
+                    ], 400);
+                }
                 return redirect()->route('production')->with('error', 'No active recipe found for this product.');
             }
 
@@ -97,6 +103,14 @@ class ProductionController extends Controller
                 
                 if ($ingredient->quantity < $requiredQty) {
                     DB::rollBack();
+                    
+                    if ($request->expectsJson() || $request->ajax()) {
+                        return response()->json([
+                            'success' => false,
+                            'error' => "Insufficient {$ingredient->name}. Required: {$requiredQty}, Available: {$ingredient->quantity}"
+                        ], 400);
+                    }
+                    
                     return redirect()->route('production')->with('error', "Insufficient {$ingredient->name}. Required: {$requiredQty}, Available: {$ingredient->quantity}");
                 }
                 
@@ -139,10 +153,27 @@ class ProductionController extends Controller
 
             DB::commit();
 
+            // Check if request expects JSON (AJAX)
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => "Successfully produced {$validated['quantity']} {$product->name}. Product stock updated."
+                ]);
+            }
+
             return redirect()->route('production')->with('success', "Successfully produced {$validated['quantity']} {$product->name}. Product stock updated.");
 
         } catch (\Exception $e) {
             DB::rollBack();
+            
+            // Check if request expects JSON (AJAX)
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Production failed: ' . $e->getMessage()
+                ], 500);
+            }
+            
             return redirect()->route('production')->with('error', 'Production failed: ' . $e->getMessage());
         }
     }

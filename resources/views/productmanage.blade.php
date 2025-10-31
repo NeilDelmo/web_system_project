@@ -326,9 +326,9 @@
                                     <p class="text-muted small mb-2">{{ $recipe->product->name ?? 'N/A' }}</p>
                                     <p class="text-muted small mb-3">{{ $recipe->ingredients->count() }} items</p>
                                     <div class="d-flex justify-content-center gap-2">
-                                        <button class="btn btn-sm btn-warning text-white">View</button>
-                                        <button class="btn btn-sm btn-outline-secondary">Edit</button>
-                                        <button class="btn btn-sm btn-outline-danger">Delete</button>
+                                        <button class="btn btn-sm btn-warning text-white view-recipe" data-recipe-id="{{ $recipe->id }}">View</button>
+                                        <button class="btn btn-sm btn-outline-secondary edit-recipe" data-recipe-id="{{ $recipe->id }}">Edit</button>
+                                        <button class="btn btn-sm btn-outline-danger delete-recipe" data-recipe-id="{{ $recipe->id }}">Delete</button>
                                     </div>
                                 </div>
                             </div>
@@ -894,6 +894,144 @@
         </div>
     </div>
 
+    <!-- View Recipe Modal -->
+    <div class="modal fade" id="viewRecipeModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title"><i class="bi bi-eye"></i> View Recipe</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Recipe Name:</label>
+                            <p id="view-recipe-name"></p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Product:</label>
+                            <p id="view-recipe-product"></p>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Instructions:</label>
+                        <p id="view-recipe-instructions"></p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Notes:</label>
+                        <p id="view-recipe-notes"></p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Status:</label>
+                        <p id="view-recipe-status"></p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Ingredients:</label>
+                        <div id="view-recipe-ingredients" class="table-responsive">
+                            <table class="table table-sm table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Ingredient</th>
+                                        <th>Quantity</th>
+                                        <th>Unit</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="view-recipe-ingredients-list">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Recipe Modal -->
+    <div class="modal fade" id="editRecipeModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title"><i class="bi bi-pencil"></i> Edit Recipe</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="editRecipeForm" method="POST">
+                    @csrf
+                    @method('PUT')
+                    <input type="hidden" name="status" id="edit-recipe-status-hidden" value="active">
+                    <div class="modal-body px-4 py-3">
+                        <!-- Recipe Info -->
+                        <h6 class="fw-semibold mb-3 text-danger">Recipe Information</h6>
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-semibold">Recipe Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="edit-recipe-name" name="name" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-semibold">Product <span class="text-danger">*</span></label>
+                                <select class="form-select" id="edit-recipe-product" name="product_id" required>
+                                    <option value="">Select product</option>
+                                    @foreach($products as $product)
+                                    <option value="{{ $product->id }}">{{ $product->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Ingredients Table -->
+                        <h6 class="fw-semibold mb-3 text-danger">Ingredients</h6>
+                        <div class="table-responsive mb-3">
+                            <table class="table table-bordered align-middle">
+                                <thead class="table-warning text-center">
+                                    <tr>
+                                        <th>Ingredient</th>
+                                        <th>Quantity</th>
+                                        <th>Unit</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="editRecipeIngredientsTable">
+                                    <!-- Will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                            <button type="button" class="btn btn-sm btn-outline-warning" id="addEditIngredientBtn">
+                                <i class="bi bi-plus-circle me-1"></i> Add Ingredient
+                            </button>
+                        </div>
+
+                        <!-- Recipe Instructions -->
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Instructions</label>
+                            <textarea class="form-control" id="edit-recipe-instructions" name="instructions" rows="3" required></textarea>
+                        </div>
+
+                        <!-- Recipe Notes -->
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Additional Notes (Optional)</label>
+                            <textarea class="form-control" id="edit-recipe-notes" name="notes" rows="2"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Status</label>
+                            <select class="form-select" id="edit-recipe-status" onchange="document.getElementById('edit-recipe-status-hidden').value = this.value;">
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light border-top-0">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger px-4">
+                            <i class="bi bi-check-circle me-1"></i> Update Recipe
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -1178,6 +1316,218 @@ document.querySelectorAll('.delete-category').forEach(button => {
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = `/categories/${categoryId}`;
+            
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const methodField = document.createElement('input');
+            methodField.type = 'hidden';
+            methodField.name = '_method';
+            methodField.value = 'DELETE';
+            
+            const csrfField = document.createElement('input');
+            csrfField.type = 'hidden';
+            csrfField.name = '_token';
+            csrfField.value = csrfToken;
+            
+            form.appendChild(methodField);
+            form.appendChild(csrfField);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
+});
+
+// ========== RECIPE HANDLERS ==========
+// View Recipe
+document.querySelectorAll('.view-recipe').forEach(button => {
+    button.addEventListener('click', function() {
+        const recipeId = this.getAttribute('data-recipe-id');
+        
+        fetch(`/recipes/${recipeId}`)
+            .then(response => response.json())
+            .then(recipe => {
+                document.getElementById('view-recipe-name').textContent = recipe.name;
+                document.getElementById('view-recipe-product').textContent = recipe.product ? recipe.product.name : 'N/A';
+                document.getElementById('view-recipe-instructions').textContent = recipe.instructions || 'No instructions';
+                document.getElementById('view-recipe-notes').textContent = recipe.notes || 'No notes';
+                document.getElementById('view-recipe-status').innerHTML = `<span class="badge bg-${recipe.status === 'active' ? 'success' : 'secondary'}">${recipe.status}</span>`;
+                
+                // Populate ingredients
+                const ingredientsList = document.getElementById('view-recipe-ingredients-list');
+                ingredientsList.innerHTML = '';
+                
+                if (recipe.ingredients && recipe.ingredients.length > 0) {
+                    recipe.ingredients.forEach(ingredient => {
+                        const row = `
+                            <tr>
+                                <td>${ingredient.name}</td>
+                                <td>${ingredient.pivot.quantity}</td>
+                                <td>${ingredient.pivot.unit}</td>
+                            </tr>
+                        `;
+                        ingredientsList.innerHTML += row;
+                    });
+                } else {
+                    ingredientsList.innerHTML = '<tr><td colspan="3" class="text-center text-muted">No ingredients</td></tr>';
+                }
+                
+                const viewModal = new bootstrap.Modal(document.getElementById('viewRecipeModal'));
+                viewModal.show();
+            })
+            .catch(error => console.error('Error:', error));
+    });
+});
+
+// Edit Recipe
+document.querySelectorAll('.edit-recipe').forEach(button => {
+    button.addEventListener('click', function() {
+        const recipeId = this.getAttribute('data-recipe-id');
+        
+        fetch(`/recipes/${recipeId}`)
+            .then(response => response.json())
+            .then(recipe => {
+                document.getElementById('edit-recipe-name').value = recipe.name;
+                document.getElementById('edit-recipe-product').value = recipe.product_id;
+                document.getElementById('edit-recipe-instructions').value = recipe.instructions || '';
+                document.getElementById('edit-recipe-notes').value = recipe.notes || '';
+                document.getElementById('edit-recipe-status').value = recipe.status;
+                document.getElementById('edit-recipe-status-hidden').value = recipe.status;
+                
+                // Populate ingredients
+                const ingredientsTable = document.getElementById('editRecipeIngredientsTable');
+                ingredientsTable.innerHTML = '';
+                
+                if (recipe.ingredients && recipe.ingredients.length > 0) {
+                    recipe.ingredients.forEach(ing => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>
+                                <select class="form-select ingredient-select-edit" name="ingredient[]" required>
+                                    <option value="">Select ingredient</option>
+                                    @foreach($ingredients as $ingredient)
+                                    <option value="{{ $ingredient->id }}" data-unit="{{ $ingredient->unit }}">{{ $ingredient->name }}</option>
+                                    @endforeach
+                                </select>
+                            </td>
+                            <td><input type="number" class="form-control text-center" name="quantity[]" value="${ing.pivot.quantity}" min="0" step="0.01" required></td>
+                            <td>
+                                <input type="text" class="form-control text-center unit-display-edit" name="unit[]" value="${ing.pivot.unit}" readonly required>
+                            </td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-sm btn-outline-danger removeEditIngredientRow">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        `;
+                        ingredientsTable.appendChild(row);
+                        
+                        // Set the selected ingredient
+                        const select = row.querySelector('.ingredient-select-edit');
+                        select.value = ing.id;
+                    });
+                } else {
+                    // Add one empty row if no ingredients
+                    addEditIngredientRow();
+                }
+                
+                // Update dropdowns to prevent duplicates
+                updateEditIngredientDropdowns();
+                
+                document.getElementById('editRecipeForm').action = `/recipes/${recipeId}`;
+                
+                const editModal = new bootstrap.Modal(document.getElementById('editRecipeModal'));
+                editModal.show();
+            })
+            .catch(error => console.error('Error:', error));
+    });
+});
+
+// Add ingredient row in edit modal
+document.getElementById('addEditIngredientBtn').addEventListener('click', function() {
+    addEditIngredientRow();
+    updateEditIngredientDropdowns();
+});
+
+function addEditIngredientRow() {
+    const table = document.getElementById('editRecipeIngredientsTable');
+    const row = document.createElement('tr');
+    row.innerHTML = `
+        <td>
+            <select class="form-select ingredient-select-edit" name="ingredient[]" required>
+                <option value="">Select ingredient</option>
+                @foreach($ingredients as $ingredient)
+                <option value="{{ $ingredient->id }}" data-unit="{{ $ingredient->unit }}">{{ $ingredient->name }}</option>
+                @endforeach
+            </select>
+        </td>
+        <td><input type="number" class="form-control text-center" name="quantity[]" min="0" step="0.01" placeholder="0" required></td>
+        <td>
+            <input type="text" class="form-control text-center unit-display-edit" name="unit[]" readonly placeholder="Unit" required>
+        </td>
+        <td class="text-center">
+            <button type="button" class="btn btn-sm btn-outline-danger removeEditIngredientRow">
+                <i class="bi bi-trash"></i>
+            </button>
+        </td>
+    `;
+    table.appendChild(row);
+}
+
+// Remove ingredient row in edit modal
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.removeEditIngredientRow')) {
+        const table = document.getElementById('editRecipeIngredientsTable');
+        if (table.children.length > 1) {
+            e.target.closest('tr').remove();
+            updateEditIngredientDropdowns();
+        } else {
+            alert('At least one ingredient is required.');
+        }
+    }
+});
+
+// Update unit when ingredient is selected in edit modal
+document.addEventListener('change', function(e) {
+    if (e.target.classList.contains('ingredient-select-edit')) {
+        const selectedOption = e.target.options[e.target.selectedIndex];
+        const unit = selectedOption.getAttribute('data-unit');
+        const row = e.target.closest('tr');
+        const unitInput = row.querySelector('.unit-display-edit');
+        unitInput.value = unit || '';
+        updateEditIngredientDropdowns();
+    }
+});
+
+// Prevent duplicate ingredients in edit modal
+function updateEditIngredientDropdowns() {
+    const selects = document.querySelectorAll('.ingredient-select-edit');
+    const selectedValues = Array.from(selects)
+        .map(select => select.value)
+        .filter(value => value !== '');
+
+    selects.forEach(select => {
+        const currentValue = select.value;
+        
+        Array.from(select.options).forEach(option => {
+            if (option.value === '') return;
+            
+            if (selectedValues.includes(option.value) && option.value !== currentValue) {
+                option.disabled = true;
+            } else {
+                option.disabled = false;
+            }
+        });
+    });
+}
+
+// Delete Recipe
+document.querySelectorAll('.delete-recipe').forEach(button => {
+    button.addEventListener('click', function() {
+        const recipeId = this.getAttribute('data-recipe-id');
+        
+        if (confirm('Are you sure you want to delete this recipe? This action cannot be undone.')) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/recipes/${recipeId}`;
             
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             const methodField = document.createElement('input');

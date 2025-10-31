@@ -36,6 +36,9 @@ Route::middleware(['auth', 'preventBackHistory'])->group(function () {
     Route::post('/ingredients/store', [ProductManageController::class, 'storeIngredient'])->name('ingredients.store');
     Route::post('/pricing-rules/store', [ProductManageController::class, 'storePricingRule'])->name('pricing.store');
     Route::post('/recipes/store', [ProductManageController::class, 'storeRecipe'])->name('recipes.store');
+    Route::get('/recipes/{recipe}', [ProductManageController::class, 'showRecipe'])->name('recipes.show');
+    Route::put('/recipes/{recipe}', [ProductManageController::class, 'updateRecipe'])->name('recipes.update');
+    Route::delete('/recipes/{recipe}', [ProductManageController::class, 'destroyRecipe'])->name('recipes.destroy');
 
     // Inventory route - requires 'manage_inventory' permission
     Route::get('/inventory', [InventoryController::class, 'index'])

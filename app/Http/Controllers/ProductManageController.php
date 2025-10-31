@@ -238,4 +238,60 @@ public function destroyCategory(Categories $category)
 
     return redirect()->route('products.index', ['tab' => 'categories'])->with('success', 'Category deleted successfully.');
 }
+
+// Show recipe (for view modal)
+public function showRecipe(Recipe $recipe)
+{
+    $recipe->load(['product', 'ingredients']);
+    return response()->json($recipe);
+}
+
+// Update recipe
+public function updateRecipe(Request $request, Recipe $recipe)
+{
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'product_id' => 'required|exists:products,id',
+        'instructions' => 'required|string',
+        'notes' => 'nullable|string',
+        'status' => 'required|in:active,inactive',
+        'ingredient' => 'required|array|min:1',
+        'ingredient.*' => 'required|exists:ingredients,id',
+        'quantity' => 'required|array|min:1',
+        'quantity.*' => 'required|numeric|min:0',
+        'unit' => 'required|array|min:1',
+        'unit.*' => 'required|string|max:50',
+    ]);
+
+    // Update recipe basic info
+    $recipe->update([
+        'name' => $validated['name'],
+        'product_id' => $validated['product_id'],
+        'instructions' => $validated['instructions'],
+        'notes' => $validated['notes'] ?? null,
+        'status' => $validated['status'],
+    ]);
+
+    // Detach all existing ingredients
+    $recipe->ingredients()->detach();
+
+    // Attach updated ingredients with quantities and units
+    foreach ($validated['ingredient'] as $index => $ingredientId) {
+        $recipe->ingredients()->attach($ingredientId, [
+            'quantity' => $validated['quantity'][$index],
+            'unit' => $validated['unit'][$index],
+        ]);
+    }
+
+    return redirect()->route('products.index', ['tab' => 'recipes'])->with('success', 'Recipe updated successfully.');
+}
+
+// Delete recipe
+public function destroyRecipe(Recipe $recipe)
+{
+    // Delete the recipe (ingredients will be detached automatically due to cascade)
+    $recipe->delete();
+
+    return redirect()->route('products.index', ['tab' => 'recipes'])->with('success', 'Recipe deleted successfully.');
+}
 }

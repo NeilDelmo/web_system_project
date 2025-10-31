@@ -11,7 +11,7 @@ use App\Models\Products;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 class ProductionLog extends Model implements AuditableContract
 {
-    use HasFactory AuditableTrait;
+    use HasFactory, AuditableTrait;
 
     protected $fillable = [
         'product_id',
