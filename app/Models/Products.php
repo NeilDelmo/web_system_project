@@ -46,4 +46,14 @@ class Products extends Model implements AuditableContract
         return $this->hasMany(OrderItems::class, 'product_id');
     }
 
+    public function pricingRules(): HasMany
+    {
+        return $this->hasMany(PricingRule::class, 'product_id');
+    }
+
+    public function recipes(): HasMany
+    {
+        return $this->hasMany(Recipe::class, 'product_id');
+    }
+
 }
