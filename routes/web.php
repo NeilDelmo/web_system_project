@@ -25,10 +25,9 @@ Route::middleware(['auth', 'preventBackHistory'])->group(function () {
     // Products route - accessible by all authenticated users
     Route::get('products', [ProductManageController::class, 'index'])->name('products.index');
     Route::post('/products/store', [ProductManageController::class, 'storeProduct'])->name('products.store');
-
     Route::get('/products/{product}', [ProductManageController::class, 'show'])->name('products.show');
-    Route::get('/products/{product}', [ProductManageController::class, 'update'])->name('products.update');
-    Route::get('/products/{product}', [ProductManageController::class, 'destroy'])->name('products.destroy');
+    Route::put('/products/{product}', [ProductManageController::class, 'update'])->name('products.update');
+    Route::delete('/products/{product}', [ProductManageController::class, 'destroy'])->name('products.destroy');
     Route::post('/categories/store', [ProductManageController::class, 'storeCategory'])->name('categories.store');
     Route::post('/ingredients/store', [ProductManageController::class, 'storeIngredient'])->name('ingredients.store');
     Route::post('/pricing-rules/store', [ProductManageController::class, 'storePricingRule'])->name('pricing.store');

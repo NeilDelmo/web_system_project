@@ -247,15 +247,16 @@
                                         <button class="btn btn-sm btn-warning text-white view-product"
                                             data-product-id="{{ $product->id }}">
                                             View
-                                            <button class="btn btn-sm btn-outline-secondary edit-product"
-                                                data-product-id="{{ $product->id }}">
-                                                Edit
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-danger delete-product"
-                                                data-product-id="{{ $product->id }}"
-                                                data-product-name="{{ $product->name }}">
-                                                Delete
-                                            </button>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-secondary edit-product"
+                                            data-product-id="{{ $product->id }}">
+                                            Edit
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger delete-product"
+                                            data-product-id="{{ $product->id }}"
+                                            data-product-name="{{ $product->name }}">
+                                            Delete
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -552,7 +553,49 @@
             </div>
         </div>
 
-        <!-- Edit Product Modal -->
+        <!-- View Product Modal -->
+<div class="modal fade" id="viewProductModal" tabindex="-1" aria-labelledby="viewProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow">
+            <div class="modal-header bg-warning-subtle">
+                <h5 class="modal-title fw-semibold" id="viewProductModalLabel">
+                    <i class="bi bi-eye text-danger me-2"></i> Product Details
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="text-center mb-3">
+                    <img id="view_image" src="" alt="Product Image" class="img-fluid rounded" style="max-height: 200px;">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Product Name</label>
+                    <p id="view_name" class="form-control-plaintext border p-2 rounded bg-light"></p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Category</label>
+                    <p id="view_category" class="form-control-plaintext border p-2 rounded bg-light"></p>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <label class="form-label fw-semibold">Price</label>
+                        <p id="view_price" class="form-control-plaintext border p-2 rounded bg-light"></p>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label fw-semibold">Stock</label>
+                        <p id="view_stock" class="form-control-plaintext border p-2 rounded bg-light"></p>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Description</label>
+                    <p id="view_description" class="form-control-plaintext border p-2 rounded bg-light"></p>
+                </div>
+                <div class="text-end">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
         <!-- Edit Product Modal -->
 <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
@@ -962,8 +1005,24 @@ document.querySelectorAll('.view-product').forEach(button => {
         fetch(`/products/${productId}`)
             .then(response => response.json())
             .then(product => {
-                // You can create a view modal or use alert for now
-                alert(`Product: ${product.name}\nPrice: ₱${product.price}\nStock: ${product.stock_quantity}\nCategory: ${product.category.name}`);
+                // Populate view modal
+                document.getElementById('view_name').textContent = product.name;
+                document.getElementById('view_category').textContent = product.category ? product.category.name : 'No Category';
+                document.getElementById('view_price').textContent = '₱' + parseFloat(product.price).toFixed(2);
+                document.getElementById('view_stock').textContent = product.stock_quantity + ' in stock';
+                document.getElementById('view_description').textContent = product.description || 'No description available';
+                
+                // Set image
+                const imageElement = document.getElementById('view_image');
+                if (product.image) {
+                    imageElement.src = '/storage/' + product.image;
+                } else {
+                    imageElement.src = '/images/placeholder.jpg';
+                }
+                
+                // Show modal
+                const viewModal = new bootstrap.Modal(document.getElementById('viewProductModal'));
+                viewModal.show();
             })
             .catch(error => console.error('Error:', error));
     });

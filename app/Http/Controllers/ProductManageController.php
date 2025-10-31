@@ -169,21 +169,30 @@ class ProductManageController extends Controller
 
     public function update(Request $request, Products $product){
         $validated = $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'category_id' => 'sometimes|required|exists:categories,id',
-            'price' => 'sometimes|required|numeric|min:0',
-            'stock_quantity' => 'sometimes|required|integer|min:0',
+            'name' => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,id',
+            'price' => 'required|numeric|min:0',
+            'stock_quantity' => 'required|integer|min:0',
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'status' => 'sometimes|required|in:active,inactive',
+            'status' => 'required|in:active,inactive',
         ]);
 
-        $imagePath = $request->file('image') ? $request->file('image')->store('products', 'public') : null;
-        $validated['image'] = $imagePath ?? $product->image;
+        // Handle image upload
+        if($request->hasFile('image')) {
+            // Delete old image if exists
+            if($product->image) {
+                Storage::disk('public')->delete($product->image);
+            }
+            $validated['image'] = $request->file('image')->store('products', 'public');
+        } else {
+            // Keep existing image
+            $validated['image'] = $product->image;
+        }
 
         $product->update($validated);
 
-        return response()->json(['message' => 'Product updated successfully.']);
+        return redirect()->route('products.index')->with('success', 'Product updated successfully.');
     }
 
     public function destroy(Products $product){
