@@ -34,7 +34,13 @@ Route::middleware(['auth', 'preventBackHistory'])->group(function () {
     Route::put('/categories/{category}', [ProductManageController::class, 'updateCategory'])->name('categories.update');
     Route::delete('/categories/{category}', [ProductManageController::class, 'destroyCategory'])->name('categories.destroy');
     Route::post('/ingredients/store', [ProductManageController::class, 'storeIngredient'])->name('ingredients.store');
+    Route::get('/ingredients/{ingredient}', [ProductManageController::class, 'showIngredient'])->name('ingredients.show');
+    Route::put('/ingredients/{ingredient}', [ProductManageController::class, 'updateIngredient'])->name('ingredients.update');
+    Route::delete('/ingredients/{ingredient}', [ProductManageController::class, 'destroyIngredient'])->name('ingredients.destroy');
     Route::post('/pricing-rules/store', [ProductManageController::class, 'storePricingRule'])->name('pricing.store');
+    Route::get('/pricing-rules/{pricingRule}', [ProductManageController::class, 'showPricingRule'])->name('pricing.show');
+    Route::put('/pricing-rules/{pricingRule}', [ProductManageController::class, 'updatePricingRule'])->name('pricing.update');
+    Route::delete('/pricing-rules/{pricingRule}', [ProductManageController::class, 'destroyPricingRule'])->name('pricing.destroy');
     Route::post('/recipes/store', [ProductManageController::class, 'storeRecipe'])->name('recipes.store');
     Route::get('/recipes/{recipe}', [ProductManageController::class, 'showRecipe'])->name('recipes.show');
     Route::put('/recipes/{recipe}', [ProductManageController::class, 'updateRecipe'])->name('recipes.update');

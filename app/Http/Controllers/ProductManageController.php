@@ -294,4 +294,82 @@ public function destroyRecipe(Recipe $recipe)
 
     return redirect()->route('products.index', ['tab' => 'recipes'])->with('success', 'Recipe deleted successfully.');
 }
+
+// Show pricing rule (for view modal)
+public function showPricingRule(PricingRule $pricingRule)
+{
+    $pricingRule->load('product');
+    return response()->json($pricingRule);
+}
+
+// Update pricing rule
+public function updatePricingRule(Request $request, PricingRule $pricingRule)
+{
+    $validated = $request->validate([
+        'product_id' => 'required|exists:products,id',
+        'min_quantity' => 'required|integer|min:1',
+        'discount_type' => 'required|in:percentage,fixed',
+        'discount_value' => 'required|numeric|min:0',
+        'notes' => 'nullable|string',
+        'status' => 'required|in:active,inactive',
+    ]);
+
+    $pricingRule->update($validated);
+
+    return redirect()->route('products.index', ['tab' => 'pricing'])->with('success', 'Pricing rule updated successfully.');
+}
+
+// Delete pricing rule
+public function destroyPricingRule(PricingRule $pricingRule)
+{
+    $pricingRule->delete();
+
+    return redirect()->route('products.index', ['tab' => 'pricing'])->with('success', 'Pricing rule deleted successfully.');
+}
+
+// Show ingredient (for view modal)
+public function showIngredient(Ingredients $ingredient)
+{
+    return response()->json($ingredient);
+}
+
+// Update ingredient
+public function updateIngredient(Request $request, Ingredients $ingredient)
+{
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'category' => 'required|string|max:100',
+        'unit' => 'required|string|max:50',
+        'quantity' => 'required|numeric|min:0',
+        'reorder_level' => 'required|numeric|min:0',
+    ]);
+
+    // Update ingredient
+    $ingredient->update($validated);
+
+    // Update status based on quantity
+    if ($ingredient->quantity == 0) {
+        $ingredient->status = 'out_of_stock';
+    } elseif ($ingredient->quantity <= $ingredient->reorder_level) {
+        $ingredient->status = 'low_stock';
+    } else {
+        $ingredient->status = 'in_stock';
+    }
+    $ingredient->save();
+
+    return redirect()->route('inventory')->with('success', 'Ingredient updated successfully.');
+}
+
+// Delete ingredient
+public function destroyIngredient(Ingredients $ingredient)
+{
+    // Check if ingredient is used in any recipes
+    if ($ingredient->recipes()->count() > 0) {
+        return redirect()->route('inventory')->with('error', 'Cannot delete ingredient that is used in recipes. Please remove it from recipes first.');
+    }
+
+    $ingredient->delete();
+
+    return redirect()->route('inventory')->with('success', 'Ingredient deleted successfully.');
+}
 }

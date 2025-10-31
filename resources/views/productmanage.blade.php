@@ -321,10 +321,10 @@
                         <div class="col-md-4">
                             <div class="card recipe-card text-center">
                                 <div class="card-body">
-                                    <img src="{{ asset('images/recipe-placeholder.jpg')}}" class="card-img-top" alt="{{ $recipe->name }}">
+                                    <i class="bi bi-book text-warning fs-1 mb-3"></i>
                                     <h6 class="fw-semibold mb-1">{{ $recipe->name }}</h6>
                                     <p class="text-muted small mb-2">{{ $recipe->product->name ?? 'N/A' }}</p>
-                                    <p class="text-muted small mb-3">{{ $recipe->ingredients->count() }} items</p>
+                                    <p class="text-muted small mb-3">{{ $recipe->ingredients->count() }} ingredients</p>
                                     <div class="d-flex justify-content-center gap-2">
                                         <button class="btn btn-sm btn-warning text-white view-recipe" data-recipe-id="{{ $recipe->id }}">View</button>
                                         <button class="btn btn-sm btn-outline-secondary edit-recipe" data-recipe-id="{{ $recipe->id }}">Edit</button>
@@ -393,10 +393,13 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <button class="btn btn-sm btn-outline-secondary" title="Edit">
+                                        <button class="btn btn-sm btn-warning text-white view-pricing" data-pricing-id="{{ $rule->id }}" title="View">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-secondary edit-pricing" data-pricing-id="{{ $rule->id }}" title="Edit">
                                             <i class="bi bi-pencil"></i>
                                         </button>
-                                        <button class="btn btn-sm btn-outline-danger" title="Delete">
+                                        <button class="btn btn-sm btn-outline-danger delete-pricing" data-pricing-id="{{ $rule->id }}" title="Delete">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </td>
@@ -1032,6 +1035,116 @@
         </div>
     </div>
 
+    <!-- View Pricing Rule Modal -->
+    <div class="modal fade" id="viewPricingModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title"><i class="bi bi-eye"></i> View Pricing Rule</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Product:</label>
+                        <p id="view-pricing-product"></p>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Minimum Quantity:</label>
+                            <p id="view-pricing-min-quantity"></p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Discount Type:</label>
+                            <p id="view-pricing-discount-type"></p>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Discount Value:</label>
+                        <p id="view-pricing-discount-value"></p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Notes:</label>
+                        <p id="view-pricing-notes"></p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Status:</label>
+                        <p id="view-pricing-status"></p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Pricing Rule Modal -->
+    <div class="modal fade" id="editPricingModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title"><i class="bi bi-pencil"></i> Edit Pricing Rule</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="editPricingForm" method="POST">
+                    @csrf
+                    @method('PUT')
+                    <div class="modal-body px-4 py-3">
+                        <h6 class="fw-semibold mb-3 text-danger">Product Selection</h6>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Product <span class="text-danger">*</span></label>
+                            <select class="form-select" id="edit-pricing-product" name="product_id" required>
+                                <option value="">Select product</option>
+                                @foreach($products as $product)
+                                <option value="{{ $product->id }}">{{ $product->name }} - ₱{{ number_format($product->price, 2) }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <h6 class="fw-semibold mb-3 text-danger">Rule Details</h6>
+                        <div class="row mb-3">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label small fw-semibold">Minimum Quantity <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="edit-pricing-min-quantity" name="min_quantity" min="1" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label small fw-semibold">Discount Type <span class="text-danger">*</span></label>
+                                <select class="form-select" id="edit-pricing-discount-type" name="discount_type" required>
+                                    <option value="">Select type</option>
+                                    <option value="percentage">Percentage (%)</option>
+                                    <option value="fixed">Fixed Amount (₱)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label small fw-semibold">Discount Value <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="edit-pricing-discount-value" name="discount_value" step="0.01" min="0" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Notes</label>
+                            <textarea class="form-control" id="edit-pricing-notes" name="notes" rows="2"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Status</label>
+                            <select class="form-select" id="edit-pricing-status" name="status">
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light border-top-0">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger px-4">
+                            <i class="bi bi-check-circle me-1"></i> Update Rule
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -1528,6 +1641,89 @@ document.querySelectorAll('.delete-recipe').forEach(button => {
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = `/recipes/${recipeId}`;
+            
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const methodField = document.createElement('input');
+            methodField.type = 'hidden';
+            methodField.name = '_method';
+            methodField.value = 'DELETE';
+            
+            const csrfField = document.createElement('input');
+            csrfField.type = 'hidden';
+            csrfField.name = '_token';
+            csrfField.value = csrfToken;
+            
+            form.appendChild(methodField);
+            form.appendChild(csrfField);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
+});
+
+// ========== PRICING RULE HANDLERS ==========
+// View Pricing Rule
+document.querySelectorAll('.view-pricing').forEach(button => {
+    button.addEventListener('click', function() {
+        const pricingId = this.getAttribute('data-pricing-id');
+        
+        fetch(`/pricing-rules/${pricingId}`)
+            .then(response => response.json())
+            .then(pricing => {
+                document.getElementById('view-pricing-product').textContent = pricing.product ? pricing.product.name : 'N/A';
+                document.getElementById('view-pricing-min-quantity').textContent = pricing.min_quantity + ' pcs';
+                document.getElementById('view-pricing-discount-type').innerHTML = pricing.discount_type === 'percentage' 
+                    ? '<span class="badge bg-info">Percentage</span>' 
+                    : '<span class="badge bg-primary">Fixed Amount</span>';
+                
+                const discountValue = pricing.discount_type === 'percentage' 
+                    ? pricing.discount_value + '%' 
+                    : '₱' + parseFloat(pricing.discount_value).toLocaleString('en-PH', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                document.getElementById('view-pricing-discount-value').innerHTML = `<strong class="text-success">${discountValue}</strong>`;
+                
+                document.getElementById('view-pricing-notes').textContent = pricing.notes || 'No notes';
+                document.getElementById('view-pricing-status').innerHTML = `<span class="badge bg-${pricing.status === 'active' ? 'success' : 'secondary'}">${pricing.status.charAt(0).toUpperCase() + pricing.status.slice(1)}</span>`;
+                
+                const viewModal = new bootstrap.Modal(document.getElementById('viewPricingModal'));
+                viewModal.show();
+            })
+            .catch(error => console.error('Error:', error));
+    });
+});
+
+// Edit Pricing Rule
+document.querySelectorAll('.edit-pricing').forEach(button => {
+    button.addEventListener('click', function() {
+        const pricingId = this.getAttribute('data-pricing-id');
+        
+        fetch(`/pricing-rules/${pricingId}`)
+            .then(response => response.json())
+            .then(pricing => {
+                document.getElementById('edit-pricing-product').value = pricing.product_id;
+                document.getElementById('edit-pricing-min-quantity').value = pricing.min_quantity;
+                document.getElementById('edit-pricing-discount-type').value = pricing.discount_type;
+                document.getElementById('edit-pricing-discount-value').value = pricing.discount_value;
+                document.getElementById('edit-pricing-notes').value = pricing.notes || '';
+                document.getElementById('edit-pricing-status').value = pricing.status;
+                
+                document.getElementById('editPricingForm').action = `/pricing-rules/${pricingId}`;
+                
+                const editModal = new bootstrap.Modal(document.getElementById('editPricingModal'));
+                editModal.show();
+            })
+            .catch(error => console.error('Error:', error));
+    });
+});
+
+// Delete Pricing Rule
+document.querySelectorAll('.delete-pricing').forEach(button => {
+    button.addEventListener('click', function() {
+        const pricingId = this.getAttribute('data-pricing-id');
+        
+        if (confirm('Are you sure you want to delete this pricing rule? This action cannot be undone.')) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/pricing-rules/${pricingId}`;
             
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             const methodField = document.createElement('input');
