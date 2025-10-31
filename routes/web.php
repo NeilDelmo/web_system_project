@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProductManageController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\Sale_OrderController;
 use Illuminate\Auth\Events\Login;
@@ -23,7 +23,12 @@ Route::middleware(['auth', 'preventBackHistory'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Products route - accessible by all authenticated users
-    Route::get('products', [ProductController::class, 'index'])->name('products');
+    Route::get('products', [ProductManageController::class, 'index'])->name('products.index');
+    Route::post('/products/store', [ProductManageController::class, 'storeProduct'])->name('products.store');
+    Route::post('/categories/store', [ProductManageController::class, 'storeCategory'])->name('categories.store');
+    Route::post('/ingredients/store', [ProductManageController::class, 'storeIngredient'])->name('ingredients.store');
+    Route::post('/pricing-rules/store', [ProductManageController::class, 'storePricingRule'])->name('pricing.store');
+    Route::post('/recipes/store', [ProductManageController::class, 'storeRecipe'])->name('recipes.store');
 
     // Inventory route - requires 'manage_inventory' permission
     Route::get('/inventory', [InventoryController::class, 'index'])

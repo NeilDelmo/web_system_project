@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('unit')->default('kg');
             $table->decimal('quantity', 10, 2)->default(0);
             $table->decimal('reorder_level', 10, 2)->default(10);
-            $table->enum('status', ['available', 'low_stock', 'out_of_stock'])->default('available');
+            $table->enum('status', ['in_stock', 'low_stock', 'out_of_stock'])->default('in_stock');
             $table->timestamps();
         });
     }

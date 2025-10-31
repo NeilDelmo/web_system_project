@@ -4,33 +4,41 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
+use OwenIt\Auditing\Auditable as AuditableTrait;   
 
-class Ingredients extends Model
+class Ingredients extends Model implements AuditableContract
 {
-    use HasFactory;
+    use HasFactory, AuditableTrait;
 
     protected $table = 'ingredients';
-    protected $primaryKey = 'ingredient_id';
-    public $incrementing = true;
-    protected $keyType = 'int';
-
+    protected $primaryKey = 'id';
     protected $fillable = [
         'name',
         'category',
         'unit',
         'quantity',
         'reorder_level',
-        'storage_location',
         'status'
     ];
     protected $casts = [
-        'ingredient_id' => 'integer',
         'name' => 'string',
         'category' => 'string',
         'unit' => 'string',
         'quantity' => 'decimal:2',
         'reorder_level' => 'decimal:2',
-        'storage_location' => 'string',
         'status' => 'string'
     ];
+
+    public function suppliers(): BelongsToMany
+{
+    return $this->belongsToMany(
+        Supplier::class,
+        'ingredient_supplier',
+        'ingredient_id',
+        'supplier_id'
+    )->withPivot('unit_price')->withTimestamps();
+}
+
 }
