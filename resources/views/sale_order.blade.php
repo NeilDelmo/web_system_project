@@ -195,25 +195,64 @@
                         <i class="bi bi-plus-circle me-1"></i> Create Order
                     </button>
                 </div>
-            
 
                 <p class="text-muted mb-4">Create, view, and update bakery orders.</p>
 
-                <div class="row g-4">
-                    <div class="col-md-4">
-                        <div class="card card-item">
-                            <div class="card-body">
-                                <h6 class="fw-semibold mb-1">Order #001</h6>
-                                <p class="text-muted small mb-1">Customer: Juan Dela Cruz</p>
-                                <p class="text-success fw-bold mb-1">₱320.00</p>
-                                <span class="badge bg-success-subtle text-success mb-3">Completed</span>
-                                <div class="d-flex justify-content-center gap-2">
-                                    <button class="btn btn-sm btn-warning text-white"><i class="bi bi-eye"></i> View</button>
-                                    <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i> Update</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Order #</th>
+                                <th>Type</th>
+                                <th>Customer</th>
+                                <th>Phone</th>
+                                <th>Total Amount</th>
+                                <th>Status</th>
+                                <th>Staff</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableBody">
+                            @forelse($orders as $order)
+                            <tr data-order-id="{{ $order->id }}">
+                                <td>#{{ str_pad($order->id, 3, '0', STR_PAD_LEFT) }}</td>
+                                <td><span class="badge bg-info">{{ ucfirst($order->order_type) }}</span></td>
+                                <td>{{ $order->customer_name ?? 'Walk-in' }}</td>
+                                <td>{{ $order->customer_phone ?? '-' }}</td>
+                                <td class="fw-bold">₱{{ number_format($order->total_amount, 2) }}</td>
+                                <td>
+                                    @if($order->status === 'pending')
+                                        <span class="badge bg-warning">Pending</span>
+                                    @elseif($order->status === 'completed')
+                                        <span class="badge bg-success">Completed</span>
+                                    @else
+                                        <span class="badge bg-danger">Canceled</span>
+                                    @endif
+                                </td>
+                                <td>{{ $order->staff->fullname ?? 'N/A' }}</td>
+                                <td>{{ $order->created_at->format('M d, Y') }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-info view-order" data-id="{{ $order->id }}">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    @if($order->status === 'pending')
+                                    <button class="btn btn-sm btn-warning edit-order" data-id="{{ $order->id }}">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    @endif
+                                    <button class="btn btn-sm btn-danger delete-order" data-id="{{ $order->id }}">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="9" class="text-center text-muted">No orders found</td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
@@ -262,71 +301,75 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
-                <form>
+                <form id="createOrderForm">
+                    @csrf
                     <div class="modal-body px-4 py-3">
-                        <!-- Customer Info -->
-                        <h6 class="fw-semibold mb-3 text-danger">Customer Information</h6>
+                        <!-- Order Type -->
+                        <h6 class="fw-semibold mb-3 text-danger">Order Information</h6>
                         <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label small fw-semibold">Customer Name</label>
-                                <select class="form-select" id="customerSelect" required>
-                                    <option selected disabled>Select existing customer</option>
-                                    <!-- Dynamic list of customers will be loaded here -->
+                            <div class="col-md-4">
+                                <label class="form-label small fw-semibold">Order Type <span class="text-danger">*</span></label>
+                                <select class="form-select" name="order_type" required>
+                                    <option value="walk-in">Walk-in</option>
+                                    <option value="phone">Phone</option>
+                                    <option value="online">Online</option>
                                 </select>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
+                                <label class="form-label small fw-semibold">Customer Name</label>
+                                <input type="text" class="form-control" name="customer_name" placeholder="Optional">
+                            </div>
+                            <div class="col-md-4">
                                 <label class="form-label small fw-semibold">Contact Number</label>
-                                <input type="text" class="form-control" id="customerContact" placeholder="09XXXXXXXXX" readonly>
+                                <input type="text" class="form-control" name="customer_phone" placeholder="09XXXXXXXXX">
                             </div>
                         </div>
-                     
 
-                        <!-- Order Details -->
-                        <h6 class="fw-semibold mb-3 text-danger">Order Details</h6>
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label small fw-semibold">Select Product</label>
-                                <select class="form-select">
-                                    <option selected disabled>Choose product</option>
-                                    <!-- Dynamic product list will be inserted here -->
-                                </select>
+                        <!-- Products -->
+                        <h6 class="fw-semibold mb-3 text-danger">Products <span class="text-danger">*</span></h6>
+                        <div id="orderItemsContainer">
+                            <div class="row mb-2 order-item">
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold">Product</label>
+                                    <select class="form-select product-select" name="items[0][product_id]" required>
+                                        <option value="">Choose product</option>
+                                        @foreach($products as $product)
+                                        <option value="{{ $product->id }}" data-price="{{ $product->price }}" data-stock="{{ $product->stock_quantity }}">
+                                            {{ $product->name }} - ₱{{ number_format($product->price, 2) }} (Stock: {{ $product->stock_quantity }})
+                                        </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-semibold">Quantity</label>
+                                    <input type="number" class="form-control quantity-input" name="items[0][quantity]" min="1" value="1" required>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label small fw-semibold">&nbsp;</label>
+                                    <button type="button" class="btn btn-danger btn-sm w-100 remove-item" disabled>
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
                             </div>
-                            <div class="col-md-3">
-                                <label class="form-label small fw-semibold">Quantity</label>
-                                <input type="number" class="form-control" min="1" placeholder="0">
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label small fw-semibold">Price (₱)</label>
-                                <input type="text" class="form-control" placeholder="0.00">
-                            </div>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-danger mb-3" id="addItemBtn">
+                            <i class="bi bi-plus-circle"></i> Add Another Product
+                        </button>
+
+                        <!-- Total Display -->
+                        <div class="alert alert-info">
+                            <strong>Total Amount:</strong> <span id="totalAmount">₱0.00</span>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label small fw-semibold">Order Notes</label>
-                            <textarea class="form-control" rows="2" placeholder="e.g. No sugar on top, pack separately."></textarea>
-                        </div>
-
-                        <!-- Payment Info -->
-                        <h6 class="fw-semibold mb-3 text-danger">Payment Information</h6>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label class="form-label small fw-semibold">Payment Method</label>
-                                <select class="form-select">
-                                    <option>Cash</option>
-                                    <option>GCash</option>
-                                    <option>Bank Transfer</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label small fw-semibold">Total Amount (₱)</label>
-                                <input type="text" class="form-control fw-semibold" placeholder="0.00">
-                            </div>
+                            <textarea class="form-control" name="notes" rows="2" placeholder="Special instructions"></textarea>
                         </div>
                     </div>
 
                     <div class="modal-footer bg-light border-top-0">
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-danger px-4"><i class="bi bi-check-circle me-1"></i> Save Order</button>
+                        <button type="submit" class="btn btn-danger px-4"><i class="bi bi-check-circle me-1"></i> Create Order</button>
                     </div>
                 </form>
             </div>
@@ -504,8 +547,319 @@
         </div>
     </div>
 
+    <!-- View Order Modal -->
+    <div class="modal fade" id="viewOrderModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title"><i class="bi bi-eye me-2"></i>Order Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="viewOrderContent">
+                    <!-- Order details will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Order Modal -->
+    <div class="modal fade" id="editOrderModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title"><i class="bi bi-pencil me-2"></i>Update Order Status</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="editOrderForm">
+                    @csrf
+                    @method('PUT')
+                    <input type="hidden" id="editOrderId" name="order_id">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Order Status</label>
+                            <select class="form-select" name="status" id="editOrderStatus" required>
+                                <option value="pending">Pending</option>
+                                <option value="completed">Completed</option>
+                                <option value="canceled">Canceled</option>
+                            </select>
+                            <small class="text-muted">Note: Canceling an order will return products to stock</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Notes</label>
+                            <textarea class="form-control" name="notes" id="editOrderNotes" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-warning">Update Order</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let itemCount = 1;
+    const productsList = @json($products);
+
+    // Calculate total amount
+    function calculateTotal() {
+        let total = 0;
+        document.querySelectorAll('.order-item').forEach(item => {
+            const select = item.querySelector('.product-select');
+            const quantity = parseInt(item.querySelector('.quantity-input').value) || 0;
+            const selectedOption = select.options[select.selectedIndex];
+            const price = parseFloat(selectedOption.getAttribute('data-price')) || 0;
+            total += price * quantity;
+        });
+        document.getElementById('totalAmount').textContent = '₱' + total.toFixed(2);
+    }
+
+    // Add product item
+    document.getElementById('addItemBtn').addEventListener('click', function() {
+        const container = document.getElementById('orderItemsContainer');
+        const newItem = container.querySelector('.order-item').cloneNode(true);
+        
+        // Update names
+        newItem.querySelectorAll('[name]').forEach(input => {
+            input.name = input.name.replace(/\[\d+\]/, `[${itemCount}]`);
+            if (input.tagName === 'SELECT') {
+                input.selectedIndex = 0;
+            } else {
+                input.value = input.type === 'number' ? 1 : '';
+            }
+        });
+        
+        // Enable remove button
+        newItem.querySelector('.remove-item').disabled = false;
+        container.appendChild(newItem);
+        itemCount++;
+        calculateTotal();
+    });
+
+    // Remove product item
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.remove-item')) {
+            e.target.closest('.order-item').remove();
+            calculateTotal();
+        }
+    });
+
+    // Update total on change
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('product-select') || e.target.classList.contains('quantity-input')) {
+            calculateTotal();
+        }
+    });
+
+    // Create Order Form Submit
+    document.getElementById('createOrderForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const items = [];
+        
+        // Collect items
+        document.querySelectorAll('.order-item').forEach((item, index) => {
+            const productId = item.querySelector('.product-select').value;
+            const quantity = item.querySelector('.quantity-input').value;
+            if (productId && quantity) {
+                items.push({ product_id: productId, quantity: parseInt(quantity) });
+            }
+        });
+
+        const data = {
+            order_type: formData.get('order_type'),
+            customer_name: formData.get('customer_name'),
+            customer_phone: formData.get('customer_phone'),
+            notes: formData.get('notes'),
+            items: items,
+            _token: formData.get('_token')
+        };
+
+        try {
+            const response = await fetch('/orders', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': formData.get('_token')
+                },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                alert('Order created successfully!');
+                bootstrap.Modal.getInstance(document.getElementById('createOrderModal')).hide();
+                location.reload();
+            } else {
+                alert('Error: ' + result.message);
+            }
+        } catch (error) {
+            alert('Failed to create order');
+            console.error(error);
+        }
+    });
+
+    // View Order
+    document.querySelectorAll('.view-order').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const orderId = this.getAttribute('data-id');
+            
+            try {
+                const response = await fetch(`/orders/${orderId}`);
+                const order = await response.json();
+                
+                let itemsHtml = '';
+                order.items.forEach(item => {
+                    itemsHtml += `
+                        <tr>
+                            <td>${item.product.name}</td>
+                            <td>${item.quantity}</td>
+                            <td>₱${parseFloat(item.unit_price).toFixed(2)}</td>
+                            <td class="fw-bold">₱${parseFloat(item.subtotal).toFixed(2)}</td>
+                        </tr>
+                    `;
+                });
+
+                const content = `
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>Order #:</strong> #${String(order.id).padStart(3, '0')}<br>
+                            <strong>Type:</strong> ${order.order_type}<br>
+                            <strong>Status:</strong> <span class="badge bg-${order.status === 'pending' ? 'warning' : order.status === 'completed' ? 'success' : 'danger'}">${order.status}</span>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Customer:</strong> ${order.customer_name || 'Walk-in'}<br>
+                            <strong>Phone:</strong> ${order.customer_phone || '-'}<br>
+                            <strong>Date:</strong> ${new Date(order.created_at).toLocaleDateString()}
+                        </div>
+                    </div>
+                    <h6 class="fw-bold mb-2">Order Items:</h6>
+                    <table class="table table-sm">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Product</th>
+                                <th>Quantity</th>
+                                <th>Unit Price</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>${itemsHtml}</tbody>
+                    </table>
+                    <div class="text-end">
+                        <h5>Total: ₱${parseFloat(order.total_amount).toFixed(2)}</h5>
+                    </div>
+                    ${order.notes ? `<div class="mt-3"><strong>Notes:</strong><br>${order.notes}</div>` : ''}
+                    <div class="mt-2"><strong>Staff:</strong> ${order.staff?.fullname || 'N/A'}</div>
+                `;
+
+                document.getElementById('viewOrderContent').innerHTML = content;
+                new bootstrap.Modal(document.getElementById('viewOrderModal')).show();
+            } catch (error) {
+                alert('Failed to load order details');
+                console.error(error);
+            }
+        });
+    });
+
+    // Edit Order
+    document.querySelectorAll('.edit-order').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const orderId = this.getAttribute('data-id');
+            
+            try {
+                const response = await fetch(`/orders/${orderId}`);
+                const order = await response.json();
+                
+                document.getElementById('editOrderId').value = order.id;
+                document.getElementById('editOrderStatus').value = order.status;
+                document.getElementById('editOrderNotes').value = order.notes || '';
+                
+                new bootstrap.Modal(document.getElementById('editOrderModal')).show();
+            } catch (error) {
+                alert('Failed to load order');
+                console.error(error);
+            }
+        });
+    });
+
+    // Update Order
+    document.getElementById('editOrderForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const orderId = document.getElementById('editOrderId').value;
+        const formData = new FormData(this);
+
+        try {
+            const response = await fetch(`/orders/${orderId}`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': formData.get('_token')
+                },
+                body: formData
+            });
+
+            // Add _method=PUT to formData
+            formData.append('_method', 'PUT');
+
+            const result = await response.json();
+
+            if (result.success) {
+                alert('Order updated successfully!');
+                bootstrap.Modal.getInstance(document.getElementById('editOrderModal')).hide();
+                location.reload();
+            } else {
+                alert('Error: ' + result.message);
+            }
+        } catch (error) {
+            alert('Failed to update order');
+            console.error(error);
+        }
+    });
+
+    // Delete Order
+    document.querySelectorAll('.delete-order').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            if (!confirm('Are you sure you want to delete this order? Stock will be returned if order is not canceled.')) {
+                return;
+            }
+
+            const orderId = this.getAttribute('data-id');
+            const token = document.querySelector('input[name="_token"]').value;
+
+            try {
+                const response = await fetch(`/orders/${orderId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': token,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('Order deleted successfully!');
+                    location.reload();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                alert('Failed to delete order');
+                console.error(error);
+            }
+        });
+    });
+});
+</script>
 </body>
 </html>

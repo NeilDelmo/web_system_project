@@ -93,6 +93,20 @@ Route::middleware(['auth', 'preventBackHistory'])->group(function () {
     Route::get('/sales', [Sale_OrderController::class, 'index'])
         ->middleware('permission:manage_orders')
         ->name('sales'); // Alias route
+    
+    // Order CRUD routes
+    Route::post('/orders', [Sale_OrderController::class, 'store'])
+        ->middleware('permission:manage_orders')
+        ->name('orders.store');
+    Route::get('/orders/{order}', [Sale_OrderController::class, 'show'])
+        ->middleware('permission:manage_orders')
+        ->name('orders.show');
+    Route::put('/orders/{order}', [Sale_OrderController::class, 'update'])
+        ->middleware('permission:manage_orders')
+        ->name('orders.update');
+    Route::delete('/orders/{order}', [Sale_OrderController::class, 'destroy'])
+        ->middleware('permission:manage_orders')
+        ->name('orders.destroy');
 
     // Production routes - accessible by all authenticated users
     Route::get('/production', [ProductionController::class, 'index'])->name('production');
