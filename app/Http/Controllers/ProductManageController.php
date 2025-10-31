@@ -161,4 +161,35 @@ class ProductManageController extends Controller
 
         return redirect()->route('products.index')->with('success', 'Recipe created successfully.');
     }
+
+    public function show(Products $product){
+        return response()->json($product->load('category'));
+    }
+
+    public function update(Request $request, Products $product){
+        $validated = $request->validate([
+            'name' => 'sometimes|required|string|max:255',
+            'category_id' => 'sometimes|required|exists:categories,id',
+            'price' => 'sometimes|required|numeric|min:0',
+            'stock_quantity' => 'sometimes|required|integer|min:0',
+            'description' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'status' => 'sometimes|required|in:active,inactive',
+        ]);
+
+        $imagePath = $request->file('image') ? $request->file('image')->store('products', 'public') : null;
+        $validated['image'] = $imagePath ?? $product->image;
+
+        $product->update($validated);
+
+        return response()->json(['message' => 'Product updated successfully.']);
+    }
+
+    public function destroy(Products $product){
+       If($product->image){
+        Storage::disk('public')->delete($product->image);
+       }
+        $product->delete();
+        return response()->json(['message' => 'Product deleted successfully.']);
+    }
 }
