@@ -913,7 +913,7 @@
             }
         });
 
-        // Auto-populate unit when ingredient is selected
+        // Auto-populate unit when ingredient is selected and disable duplicates
         function attachIngredientChangeEvent(select) {
             select.addEventListener('change', function() {
                 const selectedOption = this.options[this.selectedIndex];
@@ -926,6 +926,44 @@
                 } else {
                     unitInput.value = '';
                 }
+
+                // Update all dropdowns to disable already-selected ingredients
+                updateIngredientDropdowns();
+            });
+        }
+
+        // Function to disable already-selected ingredients in all dropdowns
+        function updateIngredientDropdowns() {
+            const allSelects = document.querySelectorAll('.ingredient-select');
+            const selectedValues = [];
+
+            // Collect all selected ingredient IDs
+            allSelects.forEach(select => {
+                if (select.value) {
+                    selectedValues.push(select.value);
+                }
+            });
+
+            // For each dropdown, disable options that are selected in other dropdowns
+            allSelects.forEach(currentSelect => {
+                const currentValue = currentSelect.value;
+                
+                // Re-enable all options first
+                Array.from(currentSelect.options).forEach(option => {
+                    if (option.value) { // Skip the empty option
+                        option.disabled = false;
+                    }
+                });
+
+                // Disable options that are selected elsewhere
+                selectedValues.forEach(value => {
+                    if (value && value !== currentValue) {
+                        const option = currentSelect.querySelector(`option[value="${value}"]`);
+                        if (option) {
+                            option.disabled = true;
+                        }
+                    }
+                });
             });
         }
 
@@ -943,6 +981,9 @@
             // Add event listeners to the new row
             attachRemoveEvent(newRow.querySelector('.removeIngredientRow'));
             attachIngredientChangeEvent(newRow.querySelector('.ingredient-select'));
+
+            // Update all dropdowns to reflect current selections
+            updateIngredientDropdowns();
         });
 
         // Remove ingredient row functionality
@@ -951,6 +992,8 @@
                 const tableBody = document.getElementById('recipeIngredientsTable');
                 if (tableBody.rows.length > 1) {
                     this.closest('tr').remove();
+                    // Update dropdowns after removing a row
+                    updateIngredientDropdowns();
                 } else {
                     alert('You must have at least one ingredient!');
                 }

@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProductManageController;
 use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\ProductionController;
 use App\Http\Controllers\Sale_OrderController;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\Route;
@@ -49,10 +50,10 @@ Route::middleware(['auth', 'preventBackHistory'])->group(function () {
         ->middleware('permission:manage_orders')
         ->name('sales'); // Alias route
 
-    // Production route - accessible by all authenticated users
-    Route::get('/production', function () {
-        return view('production');
-    })->name('production');
+    // Production routes - accessible by all authenticated users
+    Route::get('/production', [ProductionController::class, 'index'])->name('production');
+    Route::get('/production/recipe-requirements/{product}', [ProductionController::class, 'getRecipeRequirements'])->name('production.requirements');
+    Route::post('/production/produce', [ProductionController::class, 'produce'])->name('production.produce');
 
     // Reports route - requires 'view_reports' permission
     Route::get('/reports', function () {
