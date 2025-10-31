@@ -289,9 +289,11 @@
                                         <p class="text-muted small">{{ $category->description }}</p>
                                         <p class="text-muted small">{{ $category->products->count() }} products</p>
                                         <div class="d-flex justify-content-center gap-2">
-                                            <button class="btn btn-sm btn-warning text-white">View</button>
-                                            <button class="btn btn-sm btn-outline-secondary">Edit</button>
-                                            <button class="btn btn-sm btn-outline-danger">Delete</button>
+                                            <button class="btn btn-sm btn-warning text-white" data-category-id="{{ $category->id }}">View</button>
+                                            <button class="btn btn-sm btn-outline-secondary" data-category-id="{{ $category->id }}">Edit</button>
+                                            <button class="btn btn-sm btn-outline-danger" data-category-id="{{ $category->id }}"
+                                                data-category-name="{{ $category->name }}"
+                                                data-product-count="{{ $category->products->count() }}">Delete</button>
                                         </div>
                                     </div>
                                 </div>
@@ -554,115 +556,115 @@
         </div>
 
         <!-- View Product Modal -->
-<div class="modal fade" id="viewProductModal" tabindex="-1" aria-labelledby="viewProductModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 rounded-4 shadow">
-            <div class="modal-header bg-warning-subtle">
-                <h5 class="modal-title fw-semibold" id="viewProductModalLabel">
-                    <i class="bi bi-eye text-danger me-2"></i> Product Details
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-4">
-                <div class="text-center mb-3">
-                    <img id="view_image" src="" alt="Product Image" class="img-fluid rounded" style="max-height: 200px;">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label fw-semibold">Product Name</label>
-                    <p id="view_name" class="form-control-plaintext border p-2 rounded bg-light"></p>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label fw-semibold">Category</label>
-                    <p id="view_category" class="form-control-plaintext border p-2 rounded bg-light"></p>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-6">
-                        <label class="form-label fw-semibold">Price</label>
-                        <p id="view_price" class="form-control-plaintext border p-2 rounded bg-light"></p>
+        <div class="modal fade" id="viewProductModal" tabindex="-1" aria-labelledby="viewProductModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 rounded-4 shadow">
+                    <div class="modal-header bg-warning-subtle">
+                        <h5 class="modal-title fw-semibold" id="viewProductModalLabel">
+                            <i class="bi bi-eye text-danger me-2"></i> Product Details
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="col-6">
-                        <label class="form-label fw-semibold">Stock</label>
-                        <p id="view_stock" class="form-control-plaintext border p-2 rounded bg-light"></p>
+                    <div class="modal-body p-4">
+                        <div class="text-center mb-3">
+                            <img id="view_image" src="" alt="Product Image" class="img-fluid rounded" style="max-height: 200px;">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Product Name</label>
+                            <p id="view_name" class="form-control-plaintext border p-2 rounded bg-light"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Category</label>
+                            <p id="view_category" class="form-control-plaintext border p-2 rounded bg-light"></p>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="form-label fw-semibold">Price</label>
+                                <p id="view_price" class="form-control-plaintext border p-2 rounded bg-light"></p>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fw-semibold">Stock</label>
+                                <p id="view_stock" class="form-control-plaintext border p-2 rounded bg-light"></p>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Description</label>
+                            <p id="view_description" class="form-control-plaintext border p-2 rounded bg-light"></p>
+                        </div>
+                        <div class="text-end">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
                     </div>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label fw-semibold">Description</label>
-                    <p id="view_description" class="form-control-plaintext border p-2 rounded bg-light"></p>
-                </div>
-                <div class="text-end">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
-    </div>
-</div>
 
         <!-- Edit Product Modal -->
-<div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 rounded-4 shadow">
-            <div class="modal-header bg-warning-subtle">
-                <h5 class="modal-title fw-semibold" id="editProductModalLabel">
-                    <i class="bi bi-pencil-square text-danger me-2"></i> Edit Product
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-4">
-                <form id="editProductForm" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    @method('PUT')
-                    <input type="hidden" name="status" value="active">
-                    
-                    @if($errors->any())
-                    <div class="alert alert-danger">
-                        <ul class="mb-0">
-                            @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
+        <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 rounded-4 shadow">
+                    <div class="modal-header bg-warning-subtle">
+                        <h5 class="modal-title fw-semibold" id="editProductModalLabel">
+                            <i class="bi bi-pencil-square text-danger me-2"></i> Edit Product
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    @endif
-                    
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Product Name</label>
-                        <input type="text" class="form-control" name="name" id="edit_name" placeholder="Enter product name" required>
+                    <div class="modal-body p-4">
+                        <form id="editProductForm" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            @method('PUT')
+                            <input type="hidden" name="status" value="active">
+
+                            @if($errors->any())
+                            <div class="alert alert-danger">
+                                <ul class="mb-0">
+                                    @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                            @endif
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Product Name</label>
+                                <input type="text" class="form-control" name="name" id="edit_name" placeholder="Enter product name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Category</label>
+                                <select class="form-select" name="category_id" id="edit_category_id" required>
+                                    <option value="" disabled>Select Category</option>
+                                    @foreach($categories as $category)
+                                    <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Price (₱)</label>
+                                <input type="number" class="form-control" name="price" id="edit_price" step="0.01" min="0" placeholder="Enter price" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Stock Quantity</label>
+                                <input type="number" class="form-control" name="stock_quantity" id="edit_stock_quantity" min="0" placeholder="Enter stock" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Description</label>
+                                <textarea class="form-control" name="description" id="edit_description" rows="3" placeholder="Enter description"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Product Image</label>
+                                <input type="file" class="form-control" name="image" accept="image/*">
+                                <small class="text-muted">Max size: 2MB. Formats: JPG, PNG, GIF</small>
+                                <div class="mt-2" id="currentImageContainer"></div>
+                            </div>
+                            <div class="text-end">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-danger">Update Product</button>
+                            </div>
+                        </form>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Category</label>
-                        <select class="form-select" name="category_id" id="edit_category_id" required>
-                            <option value="" disabled>Select Category</option>
-                            @foreach($categories as $category)
-                            <option value="{{ $category->id }}">{{ $category->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Price (₱)</label>
-                        <input type="number" class="form-control" name="price" id="edit_price" step="0.01" min="0" placeholder="Enter price" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Stock Quantity</label>
-                        <input type="number" class="form-control" name="stock_quantity" id="edit_stock_quantity" min="0" placeholder="Enter stock" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Description</label>
-                        <textarea class="form-control" name="description" id="edit_description" rows="3" placeholder="Enter description"></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Product Image</label>
-                        <input type="file" class="form-control" name="image" accept="image/*">
-                        <small class="text-muted">Max size: 2MB. Formats: JPG, PNG, GIF</small>
-                        <div class="mt-2" id="currentImageContainer"></div>
-                    </div>
-                    <div class="text-end">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-danger">Update Product</button>
-                    </div>
-                </form>
+                </div>
             </div>
         </div>
-    </div>
-</div>
 
         <!-- ✅ Add Category Modal -->
         <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
@@ -690,6 +692,56 @@
                             <div class="text-end">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                                 <button type="submit" class="btn btn-danger">Save Category</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Category Modal -->
+        <div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 rounded-4 shadow">
+                    <div class="modal-header bg-warning-subtle">
+                        <h5 class="modal-title fw-semibold" id="editCategoryModalLabel">
+                            <i class="bi bi-pencil-square text-danger me-2"></i> Edit Category
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <form id="editCategoryForm" method="POST">
+                            @csrf
+                            @method('PUT')
+
+                            @if($errors->any())
+                            <div class="alert alert-danger">
+                                <ul class="mb-0">
+                                    @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                            @endif
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Category Name</label>
+                                <input type="text" class="form-control" name="name" id="edit_category_name" placeholder="Enter category name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Description</label>
+                                <textarea class="form-control" name="description" id="edit_category_description" rows="3" placeholder="Enter category description"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Status</label>
+                                <select class="form-select" name="status" id="edit_category_status" required>
+                                    <option value="active">Active</option>
+                                    <option value="inactive">Inactive</option>
+                                </select>
+                            </div>
+                            <div class="text-end">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-danger">Update Category</button>
                             </div>
                         </form>
                     </div>
@@ -998,84 +1050,162 @@
         });
 
         // View Product
-document.querySelectorAll('.view-product').forEach(button => {
-    button.addEventListener('click', function() {
-        const productId = this.getAttribute('data-product-id');
-        
-        fetch(`/products/${productId}`)
-            .then(response => response.json())
-            .then(product => {
-                // Populate view modal
-                document.getElementById('view_name').textContent = product.name;
-                document.getElementById('view_category').textContent = product.category ? product.category.name : 'No Category';
-                document.getElementById('view_price').textContent = '₱' + parseFloat(product.price).toFixed(2);
-                document.getElementById('view_stock').textContent = product.stock_quantity + ' in stock';
-                document.getElementById('view_description').textContent = product.description || 'No description available';
-                
-                // Set image
-                const imageElement = document.getElementById('view_image');
-                if (product.image) {
-                    imageElement.src = '/storage/' + product.image;
-                } else {
-                    imageElement.src = '/images/placeholder.jpg';
+        document.querySelectorAll('.view-product').forEach(button => {
+            button.addEventListener('click', function() {
+                const productId = this.getAttribute('data-product-id');
+
+                fetch(`/products/${productId}`)
+                    .then(response => response.json())
+                    .then(product => {
+                        // Populate view modal
+                        document.getElementById('view_name').textContent = product.name;
+                        document.getElementById('view_category').textContent = product.category ? product.category.name : 'No Category';
+                        document.getElementById('view_price').textContent = '₱' + parseFloat(product.price).toFixed(2);
+                        document.getElementById('view_stock').textContent = product.stock_quantity + ' in stock';
+                        document.getElementById('view_description').textContent = product.description || 'No description available';
+
+                        // Set image
+                        const imageElement = document.getElementById('view_image');
+                        if (product.image) {
+                            imageElement.src = '/storage/' + product.image;
+                        } else {
+                            imageElement.src = '/images/placeholder.jpg';
+                        }
+
+                        // Show modal
+                        const viewModal = new bootstrap.Modal(document.getElementById('viewProductModal'));
+                        viewModal.show();
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
+        });
+
+        // Edit Product
+        document.querySelectorAll('.edit-product').forEach(button => {
+            button.addEventListener('click', function() {
+                const productId = this.getAttribute('data-product-id');
+
+                fetch(`/products/${productId}`)
+                    .then(response => response.json())
+                    .then(product => {
+                        // Populate the edit form
+                        document.getElementById('edit_name').value = product.name;
+                        document.getElementById('edit_category_id').value = product.category_id;
+                        document.getElementById('edit_price').value = product.price;
+                        document.getElementById('edit_stock_quantity').value = product.stock_quantity;
+                        document.getElementById('edit_description').value = product.description || '';
+
+                        // Set form action
+                        document.getElementById('editProductForm').action = `/products/${productId}`;
+
+                        // Show current image if exists
+                        const imageContainer = document.getElementById('currentImageContainer');
+                        if (product.image) {
+                            imageContainer.innerHTML = `
+                        <small class="text-muted">Current Image:</small><br>
+                        <img src="/storage/${product.image}" alt="Current image" class="img-thumbnail mt-1" style="max-height: 100px;">
+                    `;
+                        } else {
+                            imageContainer.innerHTML = '<small class="text-muted">No image uploaded</small>';
+                        }
+
+                        // Show modal
+                        const editModal = new bootstrap.Modal(document.getElementById('editProductModal'));
+                        editModal.show();
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
+        });
+
+        // Delete Product
+        document.querySelectorAll('.delete-product').forEach(button => {
+            button.addEventListener('click', function() {
+                const productId = this.getAttribute('data-product-id');
+                const productName = this.getAttribute('data-product-name');
+
+                if (confirm(`Are you sure you want to delete "${productName}"? This action cannot be undone.`)) {
+                    // Create a form and submit it
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `/products/${productId}`;
+
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    const methodField = document.createElement('input');
+                    methodField.type = 'hidden';
+                    methodField.name = '_method';
+                    methodField.value = 'DELETE';
+
+                    const csrfField = document.createElement('input');
+                    csrfField.type = 'hidden';
+                    csrfField.name = '_token';
+                    csrfField.value = csrfToken;
+
+                    form.appendChild(methodField);
+                    form.appendChild(csrfField);
+                    document.body.appendChild(form);
+                    form.submit();
                 }
-                
-                // Show modal
-                const viewModal = new bootstrap.Modal(document.getElementById('viewProductModal'));
-                viewModal.show();
+            });
+        });
+
+        // View Category
+document.querySelectorAll('.view-category').forEach(button => {
+    button.addEventListener('click', function() {
+        const categoryId = this.getAttribute('data-category-id');
+        
+        fetch(`/categories/${categoryId}`)
+            .then(response => response.json())
+            .then(category => {
+                alert(`Category: ${category.name}\nDescription: ${category.description || 'No description'}\nStatus: ${category.status}\nProducts: ${category.products_count || 0}`);
             })
             .catch(error => console.error('Error:', error));
     });
 });
 
-// Edit Product
-document.querySelectorAll('.edit-product').forEach(button => {
+// Edit Category
+document.querySelectorAll('.edit-category').forEach(button => {
     button.addEventListener('click', function() {
-        const productId = this.getAttribute('data-product-id');
+        const categoryId = this.getAttribute('data-category-id');
         
-        fetch(`/products/${productId}`)
+        fetch(`/categories/${categoryId}`)
             .then(response => response.json())
-            .then(product => {
+            .then(category => {
                 // Populate the edit form
-                document.getElementById('edit_name').value = product.name;
-                document.getElementById('edit_category_id').value = product.category_id;
-                document.getElementById('edit_price').value = product.price;
-                document.getElementById('edit_stock_quantity').value = product.stock_quantity;
-                document.getElementById('edit_description').value = product.description || '';
+                document.getElementById('edit_category_name').value = category.name;
+                document.getElementById('edit_category_description').value = category.description || '';
+                document.getElementById('edit_category_status').value = category.status;
                 
                 // Set form action
-                document.getElementById('editProductForm').action = `/products/${productId}`;
-                
-                // Show current image if exists
-                const imageContainer = document.getElementById('currentImageContainer');
-                if (product.image) {
-                    imageContainer.innerHTML = `
-                        <small class="text-muted">Current Image:</small><br>
-                        <img src="/storage/${product.image}" alt="Current image" class="img-thumbnail mt-1" style="max-height: 100px;">
-                    `;
-                } else {
-                    imageContainer.innerHTML = '<small class="text-muted">No image uploaded</small>';
-                }
+                document.getElementById('editCategoryForm').action = `/categories/${categoryId}`;
                 
                 // Show modal
-                const editModal = new bootstrap.Modal(document.getElementById('editProductModal'));
+                const editModal = new bootstrap.Modal(document.getElementById('editCategoryModal'));
                 editModal.show();
             })
             .catch(error => console.error('Error:', error));
     });
 });
 
-// Delete Product
-document.querySelectorAll('.delete-product').forEach(button => {
+// Delete Category
+document.querySelectorAll('.delete-category').forEach(button => {
     button.addEventListener('click', function() {
-        const productId = this.getAttribute('data-product-id');
-        const productName = this.getAttribute('data-product-name');
+        const categoryId = this.getAttribute('data-category-id');
+        const categoryName = this.getAttribute('data-category-name');
+        const productCount = this.getAttribute('data-product-count');
         
-        if (confirm(`Are you sure you want to delete "${productName}"? This action cannot be undone.`)) {
+        let message = `Are you sure you want to delete "${categoryName}"?`;
+        
+        if (productCount > 0) {
+            message += `\n\nWARNING: This category has ${productCount} product(s). Deleting it will affect these products.`;
+        }
+        
+        message += '\n\nThis action cannot be undone.';
+        
+        if (confirm(message)) {
             // Create a form and submit it
             const form = document.createElement('form');
             form.method = 'POST';
-            form.action = `/products/${productId}`;
+            form.action = `/categories/${categoryId}`;
             
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             const methodField = document.createElement('input');

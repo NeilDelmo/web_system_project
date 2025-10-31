@@ -29,4 +29,5 @@ class Categories extends Model implements AuditableContract
     {
         return $this->hasMany(Products::class, 'category_id');
     }
+    protected $withCount = ['products'];
 }

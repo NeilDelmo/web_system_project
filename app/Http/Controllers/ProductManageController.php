@@ -202,4 +202,38 @@ class ProductManageController extends Controller
         $product->delete();
         return redirect()->route('products.index')->with('success', 'Product deleted successfully.');
     }
+
+    //categories methods
+
+    public function showCategory(Categories $category)
+{
+    return response()->json($category);
+}
+
+// Update category
+public function updateCategory(Request $request, Categories $category)
+{
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'status' => 'required|in:active,inactive',
+    ]);
+
+    $category->update($validated);
+
+    return redirect()->route('products.index')->with('success', 'Category updated successfully.');
+}
+
+// Delete category
+public function destroyCategory(Categories $category)
+{
+    // Check if category has products
+    if ($category->products()->count() > 0) {
+        return redirect()->route('products.index')->with('error', 'Cannot delete category that has products. Please reassign or delete the products first.');
+    }
+
+    $category->delete();
+
+    return redirect()->route('products.index')->with('success', 'Category deleted successfully.');
+}
 }

@@ -29,6 +29,9 @@ Route::middleware(['auth', 'preventBackHistory'])->group(function () {
     Route::put('/products/{product}', [ProductManageController::class, 'update'])->name('products.update');
     Route::delete('/products/{product}', [ProductManageController::class, 'destroy'])->name('products.destroy');
     Route::post('/categories/store', [ProductManageController::class, 'storeCategory'])->name('categories.store');
+    Route::get('/categories/{category}', [ProductManageController::class, 'showCategory'])->name('categories.show');
+    Route::put('/categories/{category}', [ProductManageController::class, 'updateCategory'])->name('categories.update');
+    Route::delete('/categories/{category}', [ProductManageController::class, 'destroyCategory'])->name('categories.destroy');
     Route::post('/ingredients/store', [ProductManageController::class, 'storeIngredient'])->name('ingredients.store');
     Route::post('/pricing-rules/store', [ProductManageController::class, 'storePricingRule'])->name('pricing.store');
     Route::post('/recipes/store', [ProductManageController::class, 'storeRecipe'])->name('recipes.store');
