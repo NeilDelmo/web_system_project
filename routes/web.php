@@ -133,6 +133,23 @@ Route::middleware(['auth', 'preventBackHistory'])->group(function () {
         ->middleware('permission:view_reports')
         ->name('reports.export.production');
     
+    // Settings routes - requires admin role
+    Route::middleware('role:admin')->prefix('settings')->group(function () {
+        Route::get('/', [\App\Http\Controllers\SettingsController::class, 'index'])->name('settings.index');
+        
+        // User Management
+        Route::get('/users', [\App\Http\Controllers\SettingsController::class, 'users'])->name('settings.users');
+        Route::post('/users', [\App\Http\Controllers\SettingsController::class, 'storeUser'])->name('settings.users.store');
+        Route::put('/users/{id}', [\App\Http\Controllers\SettingsController::class, 'updateUser'])->name('settings.users.update');
+        Route::delete('/users/{id}', [\App\Http\Controllers\SettingsController::class, 'destroyUser'])->name('settings.users.destroy');
+        
+        // System Settings
+        Route::get('/system', [\App\Http\Controllers\SettingsController::class, 'systemSettings'])->name('settings.system');
+        
+        // Audit Logs
+        Route::get('/audit-logs', [\App\Http\Controllers\SettingsController::class, 'auditLogs'])->name('settings.audit-logs');
+    });
+    
 });
 
 // ========================================
