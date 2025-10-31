@@ -289,9 +289,9 @@
                                         <p class="text-muted small">{{ $category->description }}</p>
                                         <p class="text-muted small">{{ $category->products->count() }} products</p>
                                         <div class="d-flex justify-content-center gap-2">
-                                            <button class="btn btn-sm btn-warning text-white" data-category-id="{{ $category->id }}">View</button>
-                                            <button class="btn btn-sm btn-outline-secondary" data-category-id="{{ $category->id }}">Edit</button>
-                                            <button class="btn btn-sm btn-outline-danger" data-category-id="{{ $category->id }}"
+                                            <button class="btn btn-sm btn-warning text-white view-category" data-category-id="{{ $category->id }}">View</button>
+                                            <button class="btn btn-sm btn-outline-secondary edit-category" data-category-id="{{ $category->id }}">Edit</button>
+                                            <button class="btn btn-sm btn-outline-danger delete-category" data-category-id="{{ $category->id }}"
                                                 data-category-name="{{ $category->name }}"
                                                 data-product-count="{{ $category->products->count() }}">Delete</button>
                                         </div>
@@ -699,6 +699,41 @@
             </div>
         </div>
 
+        <!-- View Category Modal -->
+        <div class="modal fade" id="viewCategoryModal" tabindex="-1" aria-labelledby="viewCategoryModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 rounded-4 shadow">
+                    <div class="modal-header bg-warning-subtle">
+                        <h5 class="modal-title fw-semibold" id="viewCategoryModalLabel">
+                            <i class="bi bi-eye text-danger me-2"></i> Category Details
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Category Name</label>
+                            <p id="view_category_name" class="form-control-plaintext border p-2 rounded bg-light"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Description</label>
+                            <p id="view_category_description" class="form-control-plaintext border p-2 rounded bg-light"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Status</label>
+                            <p id="view_category_status" class="form-control-plaintext border p-2 rounded bg-light"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Products Count</label>
+                            <p id="view_category_products_count" class="form-control-plaintext border p-2 rounded bg-light"></p>
+                        </div>
+                        <div class="text-end">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Edit Category Modal -->
         <div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
@@ -996,6 +1031,21 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+        // Check for tab parameter in URL and activate the correct tab
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const tabParam = urlParams.get('tab');
+            
+            if (tabParam) {
+                // Find and activate the tab
+                const tabElement = document.querySelector(`a[href="#${tabParam}"]`);
+                if (tabElement) {
+                    const tab = new bootstrap.Tab(tabElement);
+                    tab.show();
+                }
+            }
+        });
+
         // Auto-populate unit when ingredient is selected
         function attachIngredientChangeEvent(select) {
             select.addEventListener('change', function() {
@@ -1156,9 +1206,21 @@ document.querySelectorAll('.view-category').forEach(button => {
         fetch(`/categories/${categoryId}`)
             .then(response => response.json())
             .then(category => {
-                alert(`Category: ${category.name}\nDescription: ${category.description || 'No description'}\nStatus: ${category.status}\nProducts: ${category.products_count || 0}`);
+                console.log('Category data:', category); // Debug log
+                // Populate view modal
+                document.getElementById('view_category_name').textContent = category.name || 'N/A';
+                document.getElementById('view_category_description').textContent = category.description || 'No description available';
+                document.getElementById('view_category_status').textContent = category.status ? category.status.charAt(0).toUpperCase() + category.status.slice(1) : 'N/A';
+                document.getElementById('view_category_products_count').textContent = (category.products_count || category.products?.length || 0) + ' products';
+                
+                // Show modal
+                const viewModal = new bootstrap.Modal(document.getElementById('viewCategoryModal'));
+                viewModal.show();
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error => {
+                console.error('Error fetching category:', error);
+                alert('Error loading category details. Please try again.');
+            });
     });
 });
 

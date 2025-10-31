@@ -79,7 +79,7 @@ class ProductManageController extends Controller
         // Clear the category cache
 
         // Return to category index with success message
-        return redirect()->route('products.index')->with('success', 'Category created successfully.');
+        return redirect()->route('products.index', ['tab' => 'categories'])->with('success', 'Category created successfully.');
     }
 
     public function storePricingRule(Request $request) {
@@ -99,7 +99,7 @@ class ProductManageController extends Controller
 
 
         // Return to pricing rule index with success message
-        return redirect()->route('products.index')->with('success', 'Pricing rule created successfully.');
+        return redirect()->route('products.index', ['tab' => 'pricing'])->with('success', 'Pricing rule created successfully.');
     }
 
     public function storeIngredient(Request $request)
@@ -124,7 +124,7 @@ class ProductManageController extends Controller
         // Create ingredient
         Ingredients::create($validated);
 
-        return redirect()->route('products.index')->with('success', 'Ingredient added successfully.');
+        return redirect()->route('products.index', ['tab' => 'ingredients'])->with('success', 'Ingredient added successfully.');
     }
 
     public function storeRecipe(Request $request)
@@ -160,7 +160,7 @@ class ProductManageController extends Controller
             ]);
         }
 
-        return redirect()->route('products.index')->with('success', 'Recipe created successfully.');
+        return redirect()->route('products.index', ['tab' => 'recipes'])->with('success', 'Recipe created successfully.');
     }
 
     public function show(Products $product){
@@ -207,6 +207,8 @@ class ProductManageController extends Controller
 
     public function showCategory(Categories $category)
 {
+    $category->load('products');
+    $category->products_count = $category->products->count();
     return response()->json($category);
 }
 
@@ -221,7 +223,7 @@ public function updateCategory(Request $request, Categories $category)
 
     $category->update($validated);
 
-    return redirect()->route('products.index')->with('success', 'Category updated successfully.');
+    return redirect()->route('products.index', ['tab' => 'categories'])->with('success', 'Category updated successfully.');
 }
 
 // Delete category
@@ -229,11 +231,11 @@ public function destroyCategory(Categories $category)
 {
     // Check if category has products
     if ($category->products()->count() > 0) {
-        return redirect()->route('products.index')->with('error', 'Cannot delete category that has products. Please reassign or delete the products first.');
+        return redirect()->route('products.index', ['tab' => 'categories'])->with('error', 'Cannot delete category that has products. Please reassign or delete the products first.');
     }
 
     $category->delete();
 
-    return redirect()->route('products.index')->with('success', 'Category deleted successfully.');
+    return redirect()->route('products.index', ['tab' => 'categories'])->with('success', 'Category deleted successfully.');
 }
 }
