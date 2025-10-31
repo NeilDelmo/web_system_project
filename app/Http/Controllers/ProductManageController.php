@@ -200,6 +200,6 @@ class ProductManageController extends Controller
         Storage::disk('public')->delete($product->image);
        }
         $product->delete();
-        return response()->json(['message' => 'Product deleted successfully.']);
+        return redirect()->route('products.index')->with('success', 'Product deleted successfully.');
     }
 }
