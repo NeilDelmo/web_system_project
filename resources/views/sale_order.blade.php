@@ -176,13 +176,7 @@
                 <a class="nav-link active" id="orders-tab" data-bs-toggle="tab" href="#orders" role="tab">Order Management</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="customers-tab" data-bs-toggle="tab" href="#customers" role="tab">Customer Management</a>
-            </li>
-            <li class="nav-item">
                 <a class="nav-link" id="history-tab" data-bs-toggle="tab" href="#history" role="tab">Order History</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" id="bulk-tab" data-bs-toggle="tab" href="#bulk" role="tab">Bulk Orders</a>
             </li>
         </ul>
 
@@ -256,31 +250,86 @@
                 </div>
             </div>
 
-            <!-- Customer Management -->
-            <div class="tab-pane fade" id="customers" role="tabpanel">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="fw-semibold mb-0">Customer Management</h5>
-                    <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#createCustomerModal">
-                        <i class="bi bi-person-plus me-1"></i> Add Customer</button>
-                </div>
-                <p class="text-muted mb-4">View, add, and manage your customers.</p>
-            </div>
-
             <!-- Order History -->
             <div class="tab-pane fade" id="history" role="tabpanel">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="fw-semibold mb-0">Order History</h5>
-                    <button class="btn btn-outline-secondary"><i class="bi bi-download me-1"></i> Export</button>
+                    <div>
+                        <button class="btn btn-outline-secondary" id="filterAllOrders">All</button>
+                        <button class="btn btn-outline-success" id="filterCompleted">Completed</button>
+                        <button class="btn btn-outline-danger" id="filterCanceled">Canceled</button>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Bulk Orders  -->
-            <div class="tab-pane fade" id="bulk" role="tabpanel">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="fw-semibold mb-0">Bulk Orders</h5>
-                    <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#createBulkOrderModal">
-                    <i class="bi bi-plus-circle me-1"></i> Add Bulk Order
-                    </button>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Order #</th>
+                                <th>Type</th>
+                                <th>Customer</th>
+                                <th>Phone</th>
+                                <th>Items</th>
+                                <th>Total Amount</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody">
+                            @foreach($orders->where('status', '!=', 'pending') as $order)
+                            <tr data-status="{{ $order->status }}">
+                                <td>#{{ str_pad($order->id, 3, '0', STR_PAD_LEFT) }}</td>
+                                <td><span class="badge bg-info">{{ ucfirst($order->order_type) }}</span></td>
+                                <td>{{ $order->customer_name ?? 'Walk-in' }}</td>
+                                <td>{{ $order->customer_phone ?? '-' }}</td>
+                                <td>{{ $order->items->count() }} item(s)</td>
+                                <td class="fw-bold">₱{{ number_format($order->total_amount, 2) }}</td>
+                                <td>
+                                    @if($order->status === 'completed')
+                                        <span class="badge bg-success">Completed</span>
+                                    @else
+                                        <span class="badge bg-danger">Canceled</span>
+                                    @endif
+                                </td>
+                                <td>{{ $order->created_at->format('M d, Y h:i A') }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-info view-order-history" data-id="{{ $order->id }}">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Summary Cards -->
+                <div class="row mt-4">
+                    <div class="col-md-4">
+                        <div class="card border-success">
+                            <div class="card-body text-center">
+                                <h3 class="text-success">{{ $orders->where('status', 'completed')->count() }}</h3>
+                                <p class="text-muted mb-0">Completed Orders</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-danger">
+                            <div class="card-body text-center">
+                                <h3 class="text-danger">{{ $orders->where('status', 'canceled')->count() }}</h3>
+                                <p class="text-muted mb-0">Canceled Orders</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-primary">
+                            <div class="card-body text-center">
+                                <h3 class="text-primary">₱{{ number_format($orders->where('status', 'completed')->sum('total_amount'), 2) }}</h3>
+                                <p class="text-muted mb-0">Total Revenue</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -855,6 +904,95 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             } catch (error) {
                 alert('Failed to delete order');
+                console.error(error);
+            }
+        });
+    });
+
+    // Order History Filters
+    document.getElementById('filterAllOrders')?.addEventListener('click', function() {
+        document.querySelectorAll('#historyTableBody tr').forEach(row => {
+            row.style.display = '';
+        });
+    });
+
+    document.getElementById('filterCompleted')?.addEventListener('click', function() {
+        document.querySelectorAll('#historyTableBody tr').forEach(row => {
+            if (row.getAttribute('data-status') === 'completed') {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+
+    document.getElementById('filterCanceled')?.addEventListener('click', function() {
+        document.querySelectorAll('#historyTableBody tr').forEach(row => {
+            if (row.getAttribute('data-status') === 'canceled') {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+
+    // View Order from History
+    document.querySelectorAll('.view-order-history').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const orderId = this.getAttribute('data-id');
+            
+            try {
+                const response = await fetch(`/orders/${orderId}`);
+                const order = await response.json();
+                
+                let itemsHtml = '';
+                order.items.forEach(item => {
+                    itemsHtml += `
+                        <tr>
+                            <td>${item.product.name}</td>
+                            <td>${item.quantity}</td>
+                            <td>₱${parseFloat(item.unit_price).toFixed(2)}</td>
+                            <td class="fw-bold">₱${parseFloat(item.subtotal).toFixed(2)}</td>
+                        </tr>
+                    `;
+                });
+
+                const content = `
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>Order #:</strong> #${String(order.id).padStart(3, '0')}<br>
+                            <strong>Type:</strong> ${order.order_type}<br>
+                            <strong>Status:</strong> <span class="badge bg-${order.status === 'pending' ? 'warning' : order.status === 'completed' ? 'success' : 'danger'}">${order.status}</span>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Customer:</strong> ${order.customer_name || 'Walk-in'}<br>
+                            <strong>Phone:</strong> ${order.customer_phone || '-'}<br>
+                            <strong>Date:</strong> ${new Date(order.created_at).toLocaleDateString()}
+                        </div>
+                    </div>
+                    <h6 class="fw-bold mb-2">Order Items:</h6>
+                    <table class="table table-sm">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Product</th>
+                                <th>Quantity</th>
+                                <th>Unit Price</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>${itemsHtml}</tbody>
+                    </table>
+                    <div class="text-end">
+                        <h5>Total: ₱${parseFloat(order.total_amount).toFixed(2)}</h5>
+                    </div>
+                    ${order.notes ? `<div class="mt-3"><strong>Notes:</strong><br>${order.notes}</div>` : ''}
+                    <div class="mt-2"><strong>Staff:</strong> ${order.staff?.fullname || 'N/A'}</div>
+                `;
+
+                document.getElementById('viewOrderContent').innerHTML = content;
+                new bootstrap.Modal(document.getElementById('viewOrderModal')).show();
+            } catch (error) {
+                alert('Failed to load order details');
                 console.error(error);
             }
         });
