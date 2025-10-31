@@ -9,7 +9,7 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
         body {
             background: linear-gradient(135deg, #fff9e6, #fff3cd, #fce6a4);
@@ -244,8 +244,18 @@
                     @else bg-danger-subtle text-danger
                     @endif mb-3">{{ $product->stock_quantity }} in stock</span>
                                     <div class="d-flex justify-content-center gap-2">
-                                        <button class="btn btn-sm btn-warning text-white">View</button>
-                                        <button class="btn btn-sm btn-outline-secondary">Edit</button>
+                                        <button class="btn btn-sm btn-warning text-white view-product"
+                                            data-product-id="{{ $product->id }}">
+                                            View
+                                            <button class="btn btn-sm btn-outline-secondary edit-product"
+                                                data-product-id="{{ $product->id }}">
+                                                Edit
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger delete-product"
+                                                data-product-id="{{ $product->id }}"
+                                                data-product-name="{{ $product->name }}">
+                                                Delete
+                                            </button>
                                     </div>
                                 </div>
                             </div>
@@ -492,7 +502,7 @@
                     <div class="modal-body p-4">
                         <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
                             @csrf
-                             <input type="hidden" name="status" value="active">
+                            <input type="hidden" name="status" value="active">
                             @if($errors->any())
                             <div class="alert alert-danger">
                                 <ul class="mb-0">
@@ -542,6 +552,75 @@
             </div>
         </div>
 
+        <!-- Edit Product Modal -->
+
+        <!-- Edit Product Modal -->
+<div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow">
+            <div class="modal-header bg-warning-subtle">
+                <h5 class="modal-title fw-semibold" id="editProductModalLabel">
+                    <i class="bi bi-pencil-square text-danger me-2"></i> Edit Product
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="editProductForm" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    @method('PUT')
+                    <input type="hidden" name="status" value="active">
+                    
+                    @if($errors->any())
+                    <div class="alert alert-danger">
+                        <ul class="mb-0">
+                            @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    @endif
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Product Name</label>
+                        <input type="text" class="form-control" name="name" id="edit_name" placeholder="Enter product name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Category</label>
+                        <select class="form-select" name="category_id" id="edit_category_id" required>
+                            <option selected disabled>Select Category</option>
+                            @foreach($categories as $category)
+                            <option value="{{ $category->id }}">{{ $category->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Price (₱)</label>
+                        <input type="number" class="form-control" name="price" id="edit_price" step="0.01" min="0" placeholder="Enter price" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Stock Quantity</label>
+                        <input type="number" class="form-control" name="stock_quantity" id="edit_stock_quantity" min="0" placeholder="Enter stock" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Description</label>
+                        <textarea class="form-control" name="description" id="edit_description" rows="3" placeholder="Enter description"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Product Image</label>
+                        <input type="file" class="form-control" name="image" accept="image/*">
+                        <small class="text-muted">Max size: 2MB. Formats: JPG, PNG, GIF</small>
+                        <div class="mt-2" id="currentImageContainer"></div>
+                    </div>
+                    <div class="text-end">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Update Product</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
         <!-- ✅ Add Category Modal -->
         <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
@@ -556,7 +635,7 @@
                     <div class="modal-body p-4">
                         <form action="{{ route('categories.store') }}" method="POST">
                             @csrf
-                             <input type="hidden" name="status" value="active">
+                            <input type="hidden" name="status" value="active">
                             <div class="mb-3">
                                 <label class="form-label fw-semibold">Category Name</label>
                                 <input type="text" class="form-control" name="name" placeholder="Enter category name" required>
@@ -589,7 +668,7 @@
                     <div class="modal-body p-4">
                         <form action="{{ route('ingredients.store') }}" method="POST">
                             @csrf
-                            
+
                             <div class="mb-3">
                                 <label class="form-label fw-semibold">Ingredient Name</label>
                                 <input type="text" class="form-control" name="name" placeholder="e.g., All-purpose Flour" required>
@@ -754,7 +833,7 @@
 
                     <form id="addPricingRuleForm" action="{{ route('pricing.store') }}" method="POST">
                         @csrf
-                         <input type="hidden" name="status" value="active">
+                        <input type="hidden" name="status" value="active">
                         <div class="modal-body px-4 py-3">
                             @if($errors->any())
                             <div class="alert alert-danger">
@@ -820,7 +899,7 @@
 
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <script>
         // Auto-populate unit when ingredient is selected
         function attachIngredientChangeEvent(select) {
@@ -829,7 +908,7 @@
                 const unit = selectedOption.getAttribute('data-unit');
                 const row = this.closest('tr');
                 const unitInput = row.querySelector('.unit-display');
-                
+
                 if (unit) {
                     unitInput.value = unit;
                 } else {
@@ -842,18 +921,18 @@
         document.getElementById('addIngredientBtn').addEventListener('click', function() {
             const tableBody = document.getElementById('recipeIngredientsTable');
             const newRow = tableBody.rows[0].cloneNode(true);
-            
+
             // Reset the values of inputs in the new row
             newRow.querySelectorAll('input').forEach(input => input.value = '');
             newRow.querySelectorAll('select').forEach(select => select.selectedIndex = 0);
-            
+
             tableBody.appendChild(newRow);
-            
+
             // Add event listeners to the new row
             attachRemoveEvent(newRow.querySelector('.removeIngredientRow'));
             attachIngredientChangeEvent(newRow.querySelector('.ingredient-select'));
         });
-        
+
         // Remove ingredient row functionality
         function attachRemoveEvent(button) {
             button.addEventListener('click', function() {
@@ -865,15 +944,98 @@
                 }
             });
         }
-        
+
         // Attach events to initial row
         document.querySelectorAll('.removeIngredientRow').forEach(button => {
             attachRemoveEvent(button);
         });
-        
+
         document.querySelectorAll('.ingredient-select').forEach(select => {
             attachIngredientChangeEvent(select);
         });
+
+        // View Product
+document.querySelectorAll('.view-product').forEach(button => {
+    button.addEventListener('click', function() {
+        const productId = this.getAttribute('data-product-id');
+        
+        fetch(`/products/${productId}`)
+            .then(response => response.json())
+            .then(product => {
+                // You can create a view modal or use alert for now
+                alert(`Product: ${product.name}\nPrice: ₱${product.price}\nStock: ${product.stock_quantity}\nCategory: ${product.category.name}`);
+            })
+            .catch(error => console.error('Error:', error));
+    });
+});
+
+// Edit Product
+document.querySelectorAll('.edit-product').forEach(button => {
+    button.addEventListener('click', function() {
+        const productId = this.getAttribute('data-product-id');
+        
+        fetch(`/products/${productId}`)
+            .then(response => response.json())
+            .then(product => {
+                // Populate the edit form
+                document.getElementById('edit_name').value = product.name;
+                document.getElementById('edit_category_id').value = product.category_id;
+                document.getElementById('edit_price').value = product.price;
+                document.getElementById('edit_stock_quantity').value = product.stock_quantity;
+                document.getElementById('edit_description').value = product.description || '';
+                
+                // Set form action
+                document.getElementById('editProductForm').action = `/products/${productId}`;
+                
+                // Show current image if exists
+                const imageContainer = document.getElementById('currentImageContainer');
+                if (product.image) {
+                    imageContainer.innerHTML = `
+                        <small class="text-muted">Current Image:</small><br>
+                        <img src="/storage/${product.image}" alt="Current image" class="img-thumbnail mt-1" style="max-height: 100px;">
+                    `;
+                } else {
+                    imageContainer.innerHTML = '<small class="text-muted">No image uploaded</small>';
+                }
+                
+                // Show modal
+                const editModal = new bootstrap.Modal(document.getElementById('editProductModal'));
+                editModal.show();
+            })
+            .catch(error => console.error('Error:', error));
+    });
+});
+
+// Delete Product
+document.querySelectorAll('.delete-product').forEach(button => {
+    button.addEventListener('click', function() {
+        const productId = this.getAttribute('data-product-id');
+        const productName = this.getAttribute('data-product-name');
+        
+        if (confirm(`Are you sure you want to delete "${productName}"? This action cannot be undone.`)) {
+            // Create a form and submit it
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/products/${productId}`;
+            
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const methodField = document.createElement('input');
+            methodField.type = 'hidden';
+            methodField.name = '_method';
+            methodField.value = 'DELETE';
+            
+            const csrfField = document.createElement('input');
+            csrfField.type = 'hidden';
+            csrfField.name = '_token';
+            csrfField.value = csrfToken;
+            
+            form.appendChild(methodField);
+            form.appendChild(csrfField);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
+});
     </script>
 </body>
 
