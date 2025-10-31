@@ -148,7 +148,7 @@
             <h6><i class="bi bi-compass me-2"></i>Quick Navigation</h6>
             <ul>
                 <li><i class="bi bi-house-door me-2 text-success"></i> <a href="{{ route('dashboard') }}">Dashboard</a></li>
-                <li><i class="bi bi-basket-fill me-2 text-success"></i> <a href="{{ route('products') }}">Products</a></li>
+                <li><i class="bi bi-basket-fill me-2 text-success"></i> <a href="{{ route('products.index') }}">Products</a></li>
                 @can('manage_inventory')
                     <li><i class="bi bi-box-seam me-2 text-success"></i> <a href="{{ route('inventory') }}">Inventory</a></li>
                 @endcan

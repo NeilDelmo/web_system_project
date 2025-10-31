@@ -520,7 +520,7 @@
                             <div class="mb-3">
                                 <label class="form-label fw-semibold">Category</label>
                                 <select class="form-select" name="category_id" required>
-                                    <option selected disabled>Select Category</option>
+                                    <option value="" selected disabled>Select Category</option>
                                     @foreach($categories as $category)
                                     <option value="{{ $category->id }}">{{ $category->name }}</option>
                                     @endforeach
@@ -630,7 +630,7 @@
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Category</label>
                         <select class="form-select" name="category_id" id="edit_category_id" required>
-                            <option selected disabled>Select Category</option>
+                            <option value="" disabled>Select Category</option>
                             @foreach($categories as $category)
                             <option value="{{ $category->id }}">{{ $category->name }}</option>
                             @endforeach
