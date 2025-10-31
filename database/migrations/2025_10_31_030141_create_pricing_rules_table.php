@@ -11,11 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('recipes', function (Blueprint $table) {
+        Schema::create('pricing_rules', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->foreignId('product_id')->nullable()->constrained('products')->onDelete('cascade');
-            $table->text('instructions')->nullable();
+            $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
+            $table->integer('min_quantity')->default(1);
+            $table->enum('discount_type', ['percentage', 'fixed'])->default('percentage');
+            $table->decimal('discount_value', 10, 2)->default(0);
             $table->text('notes')->nullable();
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->timestamps();
@@ -27,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('recipes');
+        Schema::dropIfExists('pricing_rules');
     }
 };
