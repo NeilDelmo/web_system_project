@@ -50,6 +50,17 @@ Route::middleware(['auth', 'preventBackHistory'])->group(function () {
     Route::get('/inventory', [InventoryController::class, 'index'])
         ->middleware('permission:manage_inventory')
         ->name('inventory');
+    
+    // Purchase Request routes
+    Route::post('/purchase-requests/store', [InventoryController::class, 'storePurchaseRequest'])
+        ->middleware('permission:manage_inventory')
+        ->name('purchase-requests.store');
+    Route::put('/purchase-requests/{purchaseRequest}', [InventoryController::class, 'updatePurchaseRequest'])
+        ->middleware('permission:manage_inventory')
+        ->name('purchase-requests.update');
+    Route::delete('/purchase-requests/{purchaseRequest}', [InventoryController::class, 'destroyPurchaseRequest'])
+        ->middleware('permission:manage_inventory')
+        ->name('purchase-requests.destroy');
 
     // Sales and order routes - requires 'manage_orders' permission
     Route::get('/sale_and_orders', [Sale_OrderController::class, 'index'])

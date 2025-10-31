@@ -32,13 +32,23 @@ class Ingredients extends Model implements AuditableContract
     ];
 
     public function suppliers(): BelongsToMany
-{
-    return $this->belongsToMany(
-        Supplier::class,
-        'ingredient_supplier',
-        'ingredient_id',
-        'supplier_id'
-    )->withPivot('unit_price')->withTimestamps();
-}
+    {
+        return $this->belongsToMany(
+            Supplier::class,
+            'ingredient_supplier',
+            'ingredient_id',
+            'supplier_id'
+        )->withPivot('unit_price')->withTimestamps();
+    }
+
+    public function recipes(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Recipe::class,
+            'recipe_ingredients',
+            'ingredient_id',
+            'recipe_id'
+        )->withPivot('quantity', 'unit')->withTimestamps();
+    }
 
 }

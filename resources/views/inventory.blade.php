@@ -183,8 +183,14 @@
 
         <ul class="nav nav-tabs tab-nav bg-white px-4 border-bottom" id="inventoryTabs" role="tablist">
             <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#ingredients" role="tab">Ingredients Stock</a></li>
-            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#lowstock" role="tab">Low Stock Alerts</a></li>
-            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#storage" role="tab">Storage Locations</a></li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#lowstock" role="tab">
+                    Low Stock Alerts 
+                    @if($lowStockIngredients->count() > 0)
+                        <span class="badge bg-warning text-dark ms-1">{{ $lowStockIngredients->count() }}</span>
+                    @endif
+                </a>
+            </li>
             <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#requests" role="tab">Purchase Requests</a></li>
             <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#suppliers" role="tab">Suppliers List</a></li>
         </ul>
@@ -194,9 +200,22 @@
             <div class="tab-pane fade show active" id="ingredients" role="tabpanel">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="fw-semibold mb-0">Ingredients Inventory</h5>
-                    <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#addIngredientModal">
-                        <i class="bi bi-plus-circle me-1"></i> Add Ingredient
-                    </button>
+                    <div class="d-flex gap-2">
+                        <div class="d-flex align-items-center">
+                            <label class="me-2 small fw-semibold">Sort by:</label>
+                            <select class="form-select form-select-sm" id="sortBy" style="width: auto;">
+                                <option value="name-asc" {{ request('sort') == 'name-asc' ? 'selected' : '' }}>Name (A-Z)</option>
+                                <option value="name-desc" {{ request('sort') == 'name-desc' ? 'selected' : '' }}>Name (Z-A)</option>
+                                <option value="quantity-asc" {{ request('sort') == 'quantity-asc' ? 'selected' : '' }}>Quantity (Low-High)</option>
+                                <option value="quantity-desc" {{ request('sort') == 'quantity-desc' ? 'selected' : '' }}>Quantity (High-Low)</option>
+                                <option value="category-asc" {{ request('sort') == 'category-asc' ? 'selected' : '' }}>Category (A-Z)</option>
+                                <option value="status-asc" {{ request('sort') == 'status-asc' ? 'selected' : '' }}>Status</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#addIngredientModal">
+                            <i class="bi bi-plus-circle me-1"></i> Add Ingredient
+                        </button>
+                    </div>
                 </div>
                 <p class="text-muted mb-4">Manage your bakery's ingredient stock and inventory levels.</p>
 
@@ -265,34 +284,81 @@
 
             <!-- Low Stock Alerts -->
             <div class="tab-pane fade" id="lowstock" role="tabpanel">
-                <h5 class="fw-semibold mb-3">Low Stock Alerts</h5>
-                <div class="alert alert-warning d-flex align-items-center" role="alert">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                    <div>Butter and yeast are running low. Please restock soon.</div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-semibold mb-0">Low Stock Alerts</h5>
+                    <span class="badge bg-warning text-dark fs-6">{{ $lowStockIngredients->count() }} items need attention</span>
                 </div>
-            </div>
+                <p class="text-muted mb-4">Ingredients that are at or below their reorder level.</p>
 
-            <!-- Storage Locations -->
-            <div class="tab-pane fade" id="storage" role="tabpanel">
-                <h5 class="fw-semibold mb-3">Storage Locations</h5>
-                <div class="row g-4">
-                    <div class="col-md-4">
-                        <div class="card inv-card">
-                            <div class="card-body">
-                                <h6>Warehouse A</h6>
-                                <p class="text-muted small">Dry ingredients like flour, sugar, and salt.</p>
-                            </div>
+                @if($lowStockIngredients->count() > 0)
+                    <div class="alert alert-warning d-flex align-items-center mb-4" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2 fs-4"></i>
+                        <div>
+                            <strong>Action Required!</strong> The following ingredients are running low and need restocking.
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <div class="card inv-card">
-                            <div class="card-body">
-                                <h6>Cold Storage</h6>
-                                <p class="text-muted small">For butter, milk, and perishable ingredients.</p>
-                            </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover align-middle bg-white">
+                            <thead class="table-warning">
+                                <tr>
+                                    <th>Ingredient Name</th>
+                                    <th>Category</th>
+                                    <th>Current Qty</th>
+                                    <th>Reorder Level</th>
+                                    <th>Unit</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($lowStockIngredients as $ingredient)
+                                <tr class="{{ $ingredient->status == 'out_of_stock' ? 'table-danger' : '' }}">
+                                    <td><strong>{{ $ingredient->name }}</strong></td>
+                                    <td>{{ $ingredient->category }}</td>
+                                    <td>
+                                        <span class="badge 
+                                            @if($ingredient->quantity == 0) bg-danger
+                                            @else bg-warning
+                                            @endif">
+                                            {{ $ingredient->quantity }}
+                                        </span>
+                                    </td>
+                                    <td>{{ $ingredient->reorder_level }}</td>
+                                    <td>{{ $ingredient->unit }}</td>
+                                    <td>
+                                        <span class="badge 
+                                            @if($ingredient->status == 'out_of_stock') bg-danger
+                                            @else bg-warning
+                                            @endif">
+                                            @if($ingredient->status == 'out_of_stock')
+                                                <i class="bi bi-exclamation-circle-fill me-1"></i> Out of Stock
+                                            @else
+                                                <i class="bi bi-exclamation-triangle-fill me-1"></i> Low Stock
+                                            @endif
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-warning text-white view-ingredient" data-ingredient-id="{{ $ingredient->id }}" title="View">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-success edit-ingredient" data-ingredient-id="{{ $ingredient->id }}" title="Restock">
+                                            <i class="bi bi-box-arrow-in-down"></i> Restock
+                                        </button>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <div class="alert alert-success d-flex align-items-center" role="alert">
+                        <i class="bi bi-check-circle-fill me-2 fs-4"></i>
+                        <div>
+                            <strong>All Good!</strong> All ingredients are sufficiently stocked. No action required at this time.
                         </div>
                     </div>
-                </div>
+                @endif
             </div>
 
             <!-- Purchase Requests -->
@@ -609,6 +675,14 @@
                 form.submit();
             }
         });
+    });
+
+    // Sort functionality
+    document.getElementById('sortBy').addEventListener('change', function() {
+        const sortValue = this.value;
+        const url = new URL(window.location.href);
+        url.searchParams.set('sort', sortValue);
+        window.location.href = url.toString();
     });
 </script>
 </body>
