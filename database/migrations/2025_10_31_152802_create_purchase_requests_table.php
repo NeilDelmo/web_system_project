@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('ingredient_id')->constrained('ingredients')->onDelete('cascade');
             $table->decimal('requested_quantity', 10, 2);
             $table->string('unit', 50);
-            $table->enum('status', ['pending', 'approved', 'ordered', 'received', 'cancelled'])->default('pending');
+            $table->enum('status', ['requested', 'received', 'cancelled'])->default('requested');
             $table->text('notes')->nullable();
             $table->foreignId('requested_by')->constrained('users')->onDelete('cascade');
             $table->date('date_needed')->nullable();

@@ -12,6 +12,7 @@ class PurchaseRequest extends Model implements AuditableContract
 
     protected $fillable = [
         'ingredient_id',
+        'supplier_id',
         'requested_quantity',
         'unit',
         'status',
@@ -28,6 +29,11 @@ class PurchaseRequest extends Model implements AuditableContract
     public function ingredient(): BelongsTo
     {
         return $this->belongsTo(Ingredients::class, 'ingredient_id');
+    }
+
+    public function supplier(): BelongsTo
+    {
+        return $this->belongsTo(Supplier::class, 'supplier_id');
     }
 
     public function requestedBy(): BelongsTo

@@ -51,16 +51,40 @@ Route::middleware(['auth', 'preventBackHistory'])->group(function () {
         ->middleware('permission:manage_inventory')
         ->name('inventory');
     
-    // Purchase Request routes
+    // Purchase Request routes - restricted to admin role only
     Route::post('/purchase-requests/store', [InventoryController::class, 'storePurchaseRequest'])
-        ->middleware('permission:manage_inventory')
+        ->middleware(['permission:manage_inventory', 'role:admin'])
         ->name('purchase-requests.store');
     Route::put('/purchase-requests/{purchaseRequest}', [InventoryController::class, 'updatePurchaseRequest'])
-        ->middleware('permission:manage_inventory')
+        ->middleware(['permission:manage_inventory', 'role:admin'])
         ->name('purchase-requests.update');
     Route::delete('/purchase-requests/{purchaseRequest}', [InventoryController::class, 'destroyPurchaseRequest'])
-        ->middleware('permission:manage_inventory')
+        ->middleware(['permission:manage_inventory', 'role:admin'])
         ->name('purchase-requests.destroy');
+
+    // Supplier routes
+    Route::post('/suppliers/store', [InventoryController::class, 'storeSupplier'])
+        ->middleware('permission:manage_inventory')
+        ->name('suppliers.store');
+    Route::get('/suppliers/{supplier}', [InventoryController::class, 'showSupplier'])
+        ->middleware('permission:manage_inventory')
+        ->name('suppliers.show');
+    Route::put('/suppliers/{supplier}', [InventoryController::class, 'updateSupplier'])
+        ->middleware('permission:manage_inventory')
+        ->name('suppliers.update');
+    Route::delete('/suppliers/{supplier}', [InventoryController::class, 'destroySupplier'])
+        ->middleware('permission:manage_inventory')
+        ->name('suppliers.destroy');
+    
+    // Get suppliers for a specific ingredient
+    Route::get('/ingredients/{ingredient}/suppliers', [InventoryController::class, 'getSuppliersForIngredient'])
+        ->middleware('permission:manage_inventory')
+        ->name('ingredients.suppliers');
+    
+    // Adjust stock manually
+    Route::post('/ingredients/{ingredient}/adjust-stock', [InventoryController::class, 'adjustStock'])
+        ->middleware('permission:manage_inventory')
+        ->name('ingredients.adjustStock');
 
     // Sales and order routes - requires 'manage_orders' permission
     Route::get('/sale_and_orders', [Sale_OrderController::class, 'index'])
