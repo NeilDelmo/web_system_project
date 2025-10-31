@@ -122,6 +122,17 @@ Route::middleware(['auth', 'preventBackHistory'])->group(function () {
         ->middleware('permission:view_reports')
         ->name('reports.salesData');
     
+    // Export routes
+    Route::get('/reports/export/sales/{format}', [ReportsController::class, 'exportSales'])
+        ->middleware('permission:view_reports')
+        ->name('reports.export.sales');
+    Route::get('/reports/export/inventory/{format}', [ReportsController::class, 'exportInventory'])
+        ->middleware('permission:view_reports')
+        ->name('reports.export.inventory');
+    Route::get('/reports/export/production/{format}', [ReportsController::class, 'exportProduction'])
+        ->middleware('permission:view_reports')
+        ->name('reports.export.production');
+    
 });
 
 // ========================================

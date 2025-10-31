@@ -239,7 +239,7 @@
                                                 <span class="badge bg-secondary">Cancelled</span>
                                             @endif
                                         </td>
-                                        <td>{{ $log->producer ? $log->producer->name : 'N/A' }}</td>
+                                        <td>{{ $log->producer->fullname ?? 'N/A' }}</td>
                                         <td>{{ $log->notes ?? '-' }}</td>
                                     </tr>
                                 @empty

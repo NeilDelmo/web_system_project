@@ -7,7 +7,8 @@ use OwenIt\Auditing\Audit;
 use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 use OwenIt\Auditing\Auditable as AuditableTrait;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Models\Products;    
+use App\Models\Products;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 class ProductionLog extends Model implements AuditableContract
 {

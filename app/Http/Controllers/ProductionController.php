@@ -16,7 +16,7 @@ class ProductionController extends Controller
     {
         // Load products that have recipes
         $products = Products::whereHas('recipes')->with('recipes.ingredients')->get();
-        $productionLogs = ProductionLog::with('product')->latest()->take(20)->get();
+        $productionLogs = ProductionLog::with(['product', 'producer'])->latest()->take(20)->get();
         
         return view('production', compact('products', 'productionLogs'));
     }
@@ -141,13 +141,16 @@ class ProductionController extends Controller
             $product->save();
 
             // Create production log
+            $userId = Auth::id();
+            Log::info('Creating production log with user ID: ' . $userId);
+            
             ProductionLog::create([
                 'product_id' => $product->id,
                 'quantity_produced' => $validated['quantity'],
                 'ingredients_used' => $ingredientsUsed,
                 'status' => 'completed',
                 'notes' => $validated['notes'],
-                'produced_by' => Auth::id(),
+                'produced_by' => $userId,
                 'produced_at' => now(),
             ]);
 

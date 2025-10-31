@@ -201,11 +201,20 @@
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="fw-semibold mb-0">Sales Reports</h5>
                     <div>
-                        <input type="date" class="form-control d-inline-block" id="startDate" style="width: auto;" value="{{ \Carbon\Carbon::now()->subDays(30)->format('Y-m-d') }}">
+                        <input type="date" class="form-control d-inline-block" id="startDate" style="width: auto;" value="{{ \Carbon\Carbon::now('Asia/Manila')->subDays(30)->format('Y-m-d') }}">
                         <span class="mx-2">to</span>
-                        <input type="date" class="form-control d-inline-block" id="endDate" style="width: auto;" value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}">
+                        <input type="date" class="form-control d-inline-block" id="endDate" style="width: auto;" value="{{ \Carbon\Carbon::now('Asia/Manila')->format('Y-m-d') }}">
                         <button class="btn btn-danger ms-2" id="filterSales"><i class="bi bi-funnel me-1"></i> Filter</button>
+                        <button class="btn btn-outline-secondary ms-2" id="resetDates" title="Reset to last 30 days">
+                            <i class="bi bi-arrow-clockwise me-1"></i> Reset
+                        </button>
                     </div>
+                </div>
+
+                <!-- Date Range Display -->
+                <div class="alert alert-info mb-3">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>Showing data from:</strong> {{ \Carbon\Carbon::parse($startDate)->format('M d, Y') }} to {{ \Carbon\Carbon::parse($endDate)->format('M d, Y') }}
                 </div>
 
                 <!-- Summary Cards -->
@@ -215,7 +224,7 @@
                             <div class="card-body text-center">
                                 <i class="bi bi-currency-dollar fs-1 text-primary"></i>
                                 <h3 class="mt-2">₱{{ number_format($totalRevenue, 2) }}</h3>
-                                <p class="text-muted mb-0 small">Total Revenue</p>
+                                <p class="text-muted mb-0 small">Revenue (Filtered Period)</p>
                             </div>
                         </div>
                     </div>
@@ -224,16 +233,16 @@
                             <div class="card-body text-center">
                                 <i class="bi bi-cart-check fs-1 text-success"></i>
                                 <h3 class="mt-2">{{ $totalOrders }}</h3>
-                                <p class="text-muted mb-0 small">Total Orders</p>
+                                <p class="text-muted mb-0 small">Orders (Filtered Period)</p>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="card border-warning">
                             <div class="card-body text-center">
-                                <i class="bi bi-calendar-day fs-1 text-warning"></i>
+                                <i class="bi bi-calendar-event fs-1 text-warning"></i>
                                 <h3 class="mt-2">₱{{ number_format($todaySales, 2) }}</h3>
-                                <p class="text-muted mb-0 small">Today's Sales</p>
+                                <p class="text-muted mb-0 small">Today's Sales ({{ \Carbon\Carbon::now()->format('l') }})</p>
                             </div>
                         </div>
                     </div>
@@ -251,7 +260,7 @@
                 <!-- Sales Chart -->
                 <div class="card mb-4">
                     <div class="card-header bg-white">
-                        <h6 class="mb-0 fw-semibold">Sales Trend (Last 30 Days)</h6>
+                        <h6 class="mb-0 fw-semibold">Sales Trend (Filtered Period)</h6>
                     </div>
                     <div class="card-body">
                         <canvas id="salesChart" height="80"></canvas>
@@ -343,27 +352,425 @@
             <div class="tab-pane fade" id="inventory" role="tabpanel">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="fw-semibold mb-0">Inventory Reports</h5>
-                    <button class="btn btn-danger"><i class="bi bi-box-seam me-1"></i> Generate Inventory Report</button>
                 </div>
-                <p class="text-muted mb-4">Monitor stock levels, movements, and wastage analytics.</p>
+
+                <!-- Summary Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card border-primary">
+                            <div class="card-body text-center">
+                                <i class="bi bi-box-seam fs-1 text-primary"></i>
+                                <h3 class="mt-2">{{ $ingredients->count() }}</h3>
+                                <p class="text-muted mb-0 small">Total Ingredients</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-success">
+                            <div class="card-body text-center">
+                                <i class="bi bi-basket fs-1 text-success"></i>
+                                <h3 class="mt-2">{{ $products->count() }}</h3>
+                                <p class="text-muted mb-0 small">Total Products</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-warning">
+                            <div class="card-body text-center">
+                                <i class="bi bi-exclamation-triangle fs-1 text-warning"></i>
+                                <h3 class="mt-2">{{ $lowStockIngredients->count() }}</h3>
+                                <p class="text-muted mb-0 small">Low Stock Ingredients</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-danger">
+                            <div class="card-body text-center">
+                                <i class="bi bi-x-circle fs-1 text-danger"></i>
+                                <h3 class="mt-2">{{ $lowStockProducts->count() }}</h3>
+                                <p class="text-muted mb-0 small">Low Stock Products (<10)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Low Stock Alerts -->
+                @if($lowStockIngredients->count() > 0)
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <strong>Warning:</strong> {{ $lowStockIngredients->count() }} ingredient(s) need restocking!
+                </div>
+                @endif
+
+                <!-- Ingredients Stock Table -->
+                <div class="card mb-4">
+                    <div class="card-header bg-white">
+                        <h6 class="mb-0 fw-semibold">Ingredients Inventory</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Ingredient</th>
+                                        <th>Current Stock</th>
+                                        <th>Unit</th>
+                                        <th>Status</th>
+                                        <th>Reorder Level</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($ingredients as $ingredient)
+                                    <tr>
+                                        <td class="fw-semibold">{{ $ingredient->name }}</td>
+                                        <td>{{ number_format($ingredient->quantity, 2) }}</td>
+                                        <td>{{ $ingredient->unit }}</td>
+                                        <td>
+                                            @if($ingredient->status === 'in_stock')
+                                                <span class="badge bg-success">In Stock</span>
+                                            @elseif($ingredient->status === 'low_stock')
+                                                <span class="badge bg-warning">Low Stock</span>
+                                            @else
+                                                <span class="badge bg-danger">Out of Stock</span>
+                                            @endif
+                                        </td>
+                                        <td>{{ number_format($ingredient->reorder_level ?? 0, 2) }}</td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products Stock Table -->
+                <div class="card">
+                    <div class="card-header bg-white">
+                        <h6 class="mb-0 fw-semibold">Products Inventory</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Stock Quantity</th>
+                                        <th>Price</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($products as $product)
+                                    <tr class="{{ $product->stock_quantity < 10 ? 'table-warning' : '' }}">
+                                        <td class="fw-semibold">{{ $product->name }}</td>
+                                        <td>
+                                            {{ $product->stock_quantity }} pcs
+                                            @if($product->stock_quantity < 10)
+                                                <i class="bi bi-exclamation-circle text-warning ms-1"></i>
+                                            @endif
+                                        </td>
+                                        <td>₱{{ number_format($product->price, 2) }}</td>
+                                        <td>
+                                            @if($product->stock_quantity >= 10)
+                                                <span class="badge bg-success">Available</span>
+                                            @elseif($product->stock_quantity > 0)
+                                                <span class="badge bg-warning">Low Stock</span>
+                                            @else
+                                                <span class="badge bg-danger">Out of Stock</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Production Reports -->
             <div class="tab-pane fade" id="production" role="tabpanel">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="fw-semibold mb-0">Production Reports</h5>
-                    <button class="btn btn-danger"><i class="bi bi-gear-wide-connected me-1"></i> Generate Production Report</button>
                 </div>
-                <p class="text-muted mb-4">Evaluate batch output, performance, and production efficiency.</p>
+
+                <!-- Summary Cards -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0">
+                                        <i class="bi bi-boxes text-primary fs-2"></i>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h6 class="text-muted mb-1 small">Total Units Produced</h6>
+                                        <h4 class="mb-0 fw-bold">{{ number_format($totalProduction) }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0">
+                                        <i class="bi bi-grid-3x3-gap text-info fs-2"></i>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h6 class="text-muted mb-1 small">Total Batches</h6>
+                                        <h4 class="mb-0 fw-bold">{{ number_format($totalBatches) }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0">
+                                        <i class="bi bi-check-circle text-success fs-2"></i>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h6 class="text-muted mb-1 small">Success Rate</h6>
+                                        <h4 class="mb-0 fw-bold">{{ $successRate }}%</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0">
+                                        <i class="bi bi-calendar-event text-warning fs-2"></i>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h6 class="text-muted mb-1 small">Today's Production ({{ \Carbon\Carbon::now()->format('l') }})</h6>
+                                        <h4 class="mb-0 fw-bold">{{ number_format($todayProduction) }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Production Status Summary -->
+                @if($productionByStatus->count() > 0)
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h6 class="fw-semibold mb-3">Production Status Summary</h6>
+                        <div class="row">
+                            @foreach($productionByStatus as $status)
+                            <div class="col-md-4 mb-2">
+                                <div class="d-flex align-items-center">
+                                    <span class="badge 
+                                        @if($status->status == 'completed') bg-success
+                                        @elseif($status->status == 'failed') bg-danger
+                                        @else bg-secondary
+                                        @endif
+                                        me-2">{{ ucfirst($status->status) }}</span>
+                                    <span class="text-muted">{{ $status->count }} batches</span>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+                @endif
+
+                <!-- Production by Product -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h6 class="fw-semibold mb-3">Production by Product</h6>
+                        @if($productionByProduct->count() > 0)
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Product</th>
+                                        <th>Total Produced</th>
+                                        <th>Batches</th>
+                                        <th>Avg per Batch</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($productionByProduct as $index => $prod)
+                                    <tr>
+                                        <td>
+                                            @if($index < 3)
+                                                <i class="bi bi-trophy-fill 
+                                                    @if($index == 0) text-warning
+                                                    @elseif($index == 1) text-secondary
+                                                    @else text-danger
+                                                    @endif"></i>
+                                            @else
+                                                {{ $index + 1 }}
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <strong>{{ $prod->product->name ?? 'Unknown' }}</strong>
+                                        </td>
+                                        <td>{{ number_format($prod->total_produced) }} units</td>
+                                        <td>{{ number_format($prod->batches) }}</td>
+                                        <td>{{ number_format($prod->total_produced / $prod->batches, 2) }} units</td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        @else
+                        <div class="alert alert-info mb-0">
+                            <i class="bi bi-info-circle me-2"></i>No production data available for the selected date range.
+                        </div>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- Recent Production Logs -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6 class="fw-semibold mb-3">Recent Production Logs</h6>
+                        @if($recentProduction->count() > 0)
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Date & Time</th>
+                                        <th>Product</th>
+                                        <th>Quantity</th>
+                                        <th>Status</th>
+                                        <th>Produced By</th>
+                                        <th>Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($recentProduction as $log)
+                                    <tr>
+                                        <td>
+                                            <small>{{ \Carbon\Carbon::parse($log->produced_at)->format('M d, Y') }}</small><br>
+                                            <small class="text-muted">{{ \Carbon\Carbon::parse($log->produced_at)->format('h:i A') }}</small>
+                                        </td>
+                                        <td><strong>{{ $log->product->name ?? 'Unknown' }}</strong></td>
+                                        <td>{{ number_format($log->quantity_produced) }} units</td>
+                                        <td>
+                                            <span class="badge 
+                                                @if($log->status == 'completed') bg-success
+                                                @elseif($log->status == 'failed') bg-danger
+                                                @else bg-secondary
+                                                @endif">
+                                                {{ ucfirst($log->status) }}
+                                            </span>
+                                        </td>
+                                        <td>{{ $log->producer->fullname ?? 'N/A' }}</td>
+                                        <td>
+                                            @if($log->notes)
+                                                <small>{{ Str::limit($log->notes, 50) }}</small>
+                                            @else
+                                                <small class="text-muted">-</small>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        @else
+                        <div class="alert alert-info mb-0">
+                            <i class="bi bi-info-circle me-2"></i>No production logs available for the selected date range.
+                        </div>
+                        @endif
+                    </div>
+                </div>
             </div>
 
             <!-- Export Functionality -->
             <div class="tab-pane fade" id="export" role="tabpanel">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="fw-semibold mb-0">Export Functionality</h5>
-                    <button class="btn btn-danger"><i class="bi bi-download me-1"></i> Export All Reports</button>
                 </div>
-                <p class="text-muted mb-4">Export reports in PDF, Excel, or CSV formats for external review.</p>
+                <p class="text-muted mb-4">Export reports in Excel or PDF formats for external review and analysis.</p>
+
+                <!-- Sales Report Export -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h6 class="fw-semibold mb-3"><i class="bi bi-graph-up text-primary me-2"></i>Sales Report</h6>
+                        <p class="text-muted small mb-3">Export complete sales data including orders, revenue, and product performance for the selected date range.</p>
+                        <div class="d-flex gap-2">
+                            <a href="{{ route('reports.export.sales', ['format' => 'excel']) }}?start_date={{ $startDate }}&end_date={{ $endDate }}" 
+                               class="btn btn-success">
+                                <i class="bi bi-file-earmark-excel me-1"></i> Export to Excel
+                            </a>
+                            <a href="{{ route('reports.export.sales', ['format' => 'pdf']) }}?start_date={{ $startDate }}&end_date={{ $endDate }}" 
+                               class="btn btn-danger">
+                                <i class="bi bi-file-earmark-pdf me-1"></i> Export to PDF
+                            </a>
+                        </div>
+                        <small class="text-muted mt-2 d-block">
+                            <i class="bi bi-calendar-range me-1"></i>
+                            Date Range: {{ \Carbon\Carbon::parse($startDate)->format('M d, Y') }} to {{ \Carbon\Carbon::parse($endDate)->format('M d, Y') }}
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Inventory Report Export -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h6 class="fw-semibold mb-3"><i class="bi bi-box-seam text-info me-2"></i>Inventory Report</h6>
+                        <p class="text-muted small mb-3">Export current stock levels for all products and ingredients including status and reorder information.</p>
+                        <div class="d-flex gap-2">
+                            <a href="{{ route('reports.export.inventory', ['format' => 'excel']) }}" 
+                               class="btn btn-success">
+                                <i class="bi bi-file-earmark-excel me-1"></i> Export to Excel
+                            </a>
+                            <a href="{{ route('reports.export.inventory', ['format' => 'pdf']) }}" 
+                               class="btn btn-danger">
+                                <i class="bi bi-file-earmark-pdf me-1"></i> Export to PDF
+                            </a>
+                        </div>
+                        <small class="text-muted mt-2 d-block">
+                            <i class="bi bi-calendar-check me-1"></i>
+                            As of: {{ \Carbon\Carbon::now()->format('M d, Y h:i A') }}
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Production Report Export -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h6 class="fw-semibold mb-3"><i class="bi bi-gear-wide-connected text-warning me-2"></i>Production Report</h6>
+                        <p class="text-muted small mb-3">Export production logs, batch details, and manufacturing statistics for the selected date range.</p>
+                        <div class="d-flex gap-2">
+                            <a href="{{ route('reports.export.production', ['format' => 'excel']) }}?start_date={{ $startDate }}&end_date={{ $endDate }}" 
+                               class="btn btn-success">
+                                <i class="bi bi-file-earmark-excel me-1"></i> Export to Excel
+                            </a>
+                            <a href="{{ route('reports.export.production', ['format' => 'pdf']) }}?start_date={{ $startDate }}&end_date={{ $endDate }}" 
+                               class="btn btn-danger">
+                                <i class="bi bi-file-earmark-pdf me-1"></i> Export to PDF
+                            </a>
+                        </div>
+                        <small class="text-muted mt-2 d-block">
+                            <i class="bi bi-calendar-range me-1"></i>
+                            Date Range: {{ \Carbon\Carbon::parse($startDate)->format('M d, Y') }} to {{ \Carbon\Carbon::parse($endDate)->format('M d, Y') }}
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Export Information -->
+                <div class="alert alert-info">
+                    <h6 class="alert-heading"><i class="bi bi-info-circle me-2"></i>Export Information</h6>
+                    <ul class="mb-0 small">
+                        <li><strong>Excel Format:</strong> Best for data analysis and manipulation. Contains multiple sheets with detailed data.</li>
+                        <li><strong>PDF Format:</strong> Best for printing and archival. Professional formatted reports ready for presentation.</li>
+                        <li><strong>Date Filtering:</strong> Sales and Production reports use the currently selected date range from their respective tabs.</li>
+                        <li><strong>Inventory Reports:</strong> Always reflect the current stock levels at the time of export.</li>
+                    </ul>
+                </div>
             </div>
         </div>
 
@@ -515,6 +922,34 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Date validation - prevent end date from being before start date
+    const startDateInput = document.getElementById('startDate');
+    const endDateInput = document.getElementById('endDate');
+    
+    // Set max date to today for both inputs (can't select future dates)
+    const today = new Date().toISOString().split('T')[0];
+    startDateInput.setAttribute('max', today);
+    endDateInput.setAttribute('max', today);
+    
+    // When start date changes, update the minimum allowed end date
+    startDateInput.addEventListener('change', function() {
+        const startDate = this.value;
+        // End date cannot be before start date
+        endDateInput.setAttribute('min', startDate);
+        
+        // If end date is now before start date, reset it to start date
+        if (endDateInput.value && endDateInput.value < startDate) {
+            endDateInput.value = startDate;
+        }
+    });
+    
+    // When end date changes, update the maximum allowed start date
+    endDateInput.addEventListener('change', function() {
+        const endDate = this.value;
+        // Start date cannot be after end date
+        startDateInput.setAttribute('max', endDate);
+    });
+
     // Filter button
     document.getElementById('filterSales')?.addEventListener('click', function() {
         const startDate = document.getElementById('startDate').value;
@@ -524,9 +959,20 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('Please select both start and end dates');
             return;
         }
+        
+        // Extra validation check
+        if (new Date(endDate) < new Date(startDate)) {
+            alert('End date cannot be before start date!');
+            return;
+        }
 
         // Reload page with date filters
         window.location.href = `/reports?start_date=${startDate}&end_date=${endDate}`;
+    });
+
+    // Reset button - go back to default (last 30 days)
+    document.getElementById('resetDates')?.addEventListener('click', function() {
+        window.location.href = '/reports';
     });
 });
 </script>
