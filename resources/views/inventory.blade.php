@@ -19,25 +19,45 @@
         .sidebar {
             background-color: #ffffff;
             width: 250px;
-            min-height: 100vh;
+            height: 100vh;
             box-shadow: 2px 0 10px rgba(0,0,0,0.05);
             display: flex;
             flex-direction: column;
-            position: relative;
+            justify-content: space-between;
+            position: fixed;
+            left: 0;
+            top: 0;
+            transition: width 0.6s ease;
+            z-index: 1000;
         }
 
-        .sidebar .brand {
+        .sidebar.collapsed {
+            width: 80px;
+        }
+
+        .brand {
             background-color: #ffee8c;
             height: 180px;
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
         }
 
         .sidebar-logo {
             max-height: 100%;
             max-width: 80%;
             object-fit: contain;
+            transition: all 0.6s;
+        }
+
+        .sidebar.collapsed .sidebar-logo {
+            width: 50px;
+        }
+
+        .sidebar .nav {
+            flex-grow: 1;
+            padding-top: 20px;
         }
 
         .sidebar .nav-link {
@@ -45,14 +65,19 @@
             font-weight: 500;
             padding: 0.75rem 1.25rem;
             border-radius: 8px;
-            margin: 0.25rem 0.75rem;
-            transition: all 0.2s ease;
+            margin: 0.25rem 0.5rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
         }
 
-        .sidebar .nav-link.active {
-            background-color: #ffee8c;
-            font-weight: 600;
-            color: #000;
+        .sidebar .nav-link i {
+            min-width: 20px;
+            text-align: center;
+        }
+
+        .sidebar .nav-link span {
+            transition: all 0.6s;
         }
 
         .sidebar .nav-link:hover {
@@ -60,19 +85,35 @@
             color: #b71c1c;
         }
 
+        .sidebar .nav-link.active {
+            background-color: #ffee8c;
+            color: #000;
+            font-weight: 600;
+        }
+
         .sidebar-footer {
-            position: absolute;
-            bottom: 1rem;
-            width: 100%;
+            padding: 1rem 0;
             text-align: center;
-            font-size: 0.85rem;
-            color: #777;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .sidebar.collapsed .nav-link span,
+        .sidebar.collapsed .sidebar-footer strong,
+        .sidebar.collapsed .sidebar-footer small {
+            display: none;
         }
 
         .main-content {
+            margin-left: 250px;
             flex-grow: 1;
+            overflow-y: auto;
+            height: 100vh;
             padding: 0;
-            
+            transition: margin-left 0.6s ease;
+        }
+
+        .main-content.collapsed {
+            margin-left: 80px;
         }
 
         .page-header {
@@ -115,6 +156,24 @@
             transform: translateY(-3px);
             box-shadow: 0 4px 10px rgba(0,0,0,0.15);
         }
+
+        .sidebar-toggle {
+            position: absolute;
+            top: 10px;
+            right: -15px;
+            background: #ffc107;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+            transition: all 0.6s;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+            transition: all 0.6s;
+        }
         
     </style>
 </head>
@@ -122,9 +181,12 @@
 
 <div class="d-flex">
     <!-- Sidebar -->
-    <aside class="sidebar position-relative">
+    <aside class="sidebar position-relative" id="sidebar">
     <div class="brand d-flex align-items-center justify-content-center">
         <img src="{{ asset('images/logo.png') }}" alt="Cuevas Bread Logo" class="sidebar-logo">
+         <div class="sidebar-toggle text-dark" id="sidebarToggle">
+                <i class="bi bi-chevron-left"></i>
+            </div>
     </div>
 
     <nav class="nav flex-column mt-4">
@@ -180,7 +242,7 @@
         </div>
     </aside>
     <!-- Main Content -->
-    <main class="main-content">
+    <main class="main-content" id="mainContent">
         <div class="page-header">
             <div>
                 <h2>Inventory Management</h2>
@@ -1902,6 +1964,19 @@
 
     // Initialize supplier event listeners
     attachSupplierEventListeners();
+
+    // Sidebar Toggle
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+    const toggleBtn = document.getElementById('sidebarToggle');
+
+    toggleBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('collapsed');
+        mainContent.classList.toggle('collapsed');
+        toggleBtn.innerHTML = sidebar.classList.contains('collapsed') 
+            ? '<i class="bi bi-chevron-right"></i>' 
+            : '<i class="bi bi-chevron-left"></i>';
+    });
 </script>
 </body>
 </html>

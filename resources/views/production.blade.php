@@ -15,48 +15,117 @@
         .sidebar {
             background-color: #ffffff;
             width: 250px;
-            min-height: 100vh;
+            height: 100vh;
             box-shadow: 2px 0 10px rgba(0,0,0,0.05);
             display: flex;
             flex-direction: column;
+            justify-content: space-between;
             position: fixed;
-            top: 0;
             left: 0;
+            top: 0;
+            transition: width 0.6s ease;
+            z-index: 1000;
         }
-        .sidebar .brand {
+
+        .sidebar.collapsed {
+            width: 80px;
+        }
+
+        .brand {
             background-color: #ffee8c;
             height: 180px;
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
         }
+
         .sidebar-logo {
             max-height: 100%;
             max-width: 80%;
             object-fit: contain;
+            transition: all 0.6s;
         }
+
+        .sidebar.collapsed .sidebar-logo {
+            width: 50px;
+        }
+
+        .sidebar .nav {
+            flex-grow: 1;
+            padding-top: 20px;
+        }
+
         .sidebar .nav-link {
             color: #444;
             font-weight: 500;
             padding: 0.75rem 1.25rem;
             border-radius: 8px;
-            margin: 0.25rem 0.75rem;
-            transition: all 0.2s ease;
-            text-decoration: none;
-            display: block;
+            margin: 0.25rem 0.5rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
         }
-        .sidebar .nav-link.active {
-            background-color: #ffee8c;
-            font-weight: 600;
-            color: #000;
+
+        .sidebar .nav-link i {
+            min-width: 20px;
+            text-align: center;
         }
+
+        .sidebar .nav-link span {
+            transition: all 0.6s;
+        }
+
         .sidebar .nav-link:hover {
             background-color: #fff3cd;
             color: #b71c1c;
         }
-        .content {
+
+        .sidebar .nav-link.active {
+            background-color: #ffee8c;
+            color: #000;
+            font-weight: 600;
+        }
+
+        .sidebar-footer {
+            padding: 1rem 0;
+            text-align: center;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .sidebar.collapsed .nav-link span,
+        .sidebar.collapsed .sidebar-footer strong,
+        .sidebar.collapsed .sidebar-footer small {
+            display: none;
+        }
+
+        .main-content {
             margin-left: 250px;
+            flex-grow: 1;
+            overflow-y: auto;
+            height: 100vh;
             padding: 20px;
+            transition: margin-left 0.6s ease;
+        }
+
+        .main-content.collapsed {
+            margin-left: 80px;
+        }
+
+        .sidebar-toggle {
+            position: absolute;
+            top: 10px;
+            right: -15px;
+            background: #ffc107;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+            transition: all 0.6s;
         }
         .card {
             border: none;
@@ -104,21 +173,50 @@
             background-color: #fcc935;
             border-color: #fcc935;
         }
+        .sidebar.collapsed {
+            width: 80px;
+        }
+
+        .sidebar.collapsed .nav-link span,
+        .sidebar.collapsed .sidebar-footer strong,
+        .sidebar.collapsed .sidebar-footer small {
+            display: none;
+        }
+
+        /* Sidebar toggle button */
+        .sidebar-toggle {
+            position: absolute;
+            top: 10px;
+            right: -15px;
+            background: #ffc107;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+            transition: all 0.6s;
+        }
     </style>
 </head>
 <body>
     <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="brand">
+    <div class="sidebar" id="sidebar">
+        <div class="brand position-relative">
             <img src="{{ asset('images/logo.png') }}" alt="Logo" class="sidebar-logo">
+            <div class="sidebar-toggle text-dark" id="sidebarToggle">
+                <i class="bi bi-chevron-left"></i>
+            </div>
         </div>
-        <a href="{{ route('dashboard') }}" class="nav-link"><i class="bi bi-speedometer2"></i> Dashboard</a>
-        <a href="{{ route('products.index') }}" class="nav-link"><i class="bi bi-basket"></i> Product Management</a>
-        <a href="{{ route('inventory') }}" class="nav-link"><i class="bi bi-box-seam"></i> Inventory</a>
-        <a href="{{ route('sales') }}" class="nav-link"><i class="bi bi-cart"></i> Sales & Orders</a>
-        <a href="{{ route('production') }}" class="nav-link active"><i class="bi bi-gear-fill"></i> Production</a>
+        <a href="{{ route('dashboard') }}" class="nav-link"><i class="bi bi-speedometer2"></i> <span>Dashboard</span></a>
+        <a href="{{ route('products.index') }}" class="nav-link"><i class="bi bi-basket"></i> <span>Product Management</span></a>
+        <a href="{{ route('inventory') }}" class="nav-link"><i class="bi bi-box-seam"></i> <span>Inventory</span></a>
+        <a href="{{ route('sales') }}" class="nav-link"><i class="bi bi-cart"></i> <span>Sales & Orders</span></a>
+        <a href="{{ route('production') }}" class="nav-link active"><i class="bi bi-gear-fill"></i> <span>Production</span></a>
         @can('view_reports')
-        <a href="{{ route('reports') }}" class="nav-link"><i class="bi bi-bar-chart"></i> Reports</a>
+        <a href="{{ route('reports') }}" class="nav-link"><i class="bi bi-bar-chart"></i> <span>Reports</span></a>
         @endcan
         
         <div class="mt-auto p-3 text-center border-top">
@@ -152,7 +250,7 @@
     </div>
 
     <!-- Main Content -->
-    <div class="content">
+    <div class="main-content" id="mainContent">
         <div class="container-fluid">
             <h1 class="mb-4">Production Management</h1>
 
@@ -401,6 +499,19 @@
             document.getElementById('requirementsTable').style.display = 'none';
             document.getElementById('startProductionBtn').disabled = true;
             canProduce = false;
+        });
+
+        // Sidebar Toggle
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+        const toggleBtn = document.getElementById('sidebarToggle');
+
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('collapsed');
+            toggleBtn.innerHTML = sidebar.classList.contains('collapsed') 
+                ? '<i class="bi bi-chevron-right"></i>' 
+                : '<i class="bi bi-chevron-left"></i>';
         });
     </script>
 </body>
