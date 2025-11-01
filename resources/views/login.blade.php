@@ -180,6 +180,12 @@
         </form>
 
         <div class="text-center mt-3">
+          <a href="{{ route('password.request') }}" class="text-decoration-none" style="color: #0fb55d; font-weight: 500;">
+            <i class="bi bi-key-fill"></i> Forgot password?
+          </a>
+        </div>
+
+        <div class="text-center mt-2">
           <small class="text-muted">
             <i class="bi bi-shield-check"></i> Secure login
           </small>

@@ -23,7 +23,10 @@ class SettingsController extends Controller
     {
         $users = User::with('roles')->orderBy('created_at', 'desc')->get();
         $roles = Role::all();
-        return view('settings.users', compact('users', 'roles'));
+        $adminCount = User::role('admin')->count();
+        $firstAdminId = User::role('admin')->orderBy('created_at', 'asc')->value('id');
+        $selfId = Auth::id();
+        return view('settings.users', compact('users', 'roles', 'adminCount', 'firstAdminId', 'selfId'));
     }
 
     public function storeUser(Request $request)
@@ -62,13 +65,46 @@ class SettingsController extends Controller
             'role' => 'required|exists:roles,name',
             'status' => 'required|in:active,inactive',
         ]);
+        // Safety rails to avoid locking out the system
+        $incomingRole = $validated['role'];
+        $incomingStatus = $validated['status'];
+        $isSelf = $user->id === Auth::id();
+        $adminCount = User::role('admin')->count();
+        $firstAdminId = User::role('admin')->orderBy('created_at', 'asc')->value('id');
+
+        // Primary (first) admin is immutable for ROLE changes (but status can change if not last admin)
+        if ($user->id === $firstAdminId) {
+            if ($incomingRole !== 'admin') {
+                return redirect()->back()->with('error', 'The primary admin account cannot be changed to a non-admin role.');
+            }
+        }
+
+        // Prevent changing role or status of the last remaining admin
+        if ($user->hasRole('admin') && $adminCount <= 1) {
+            if ($incomingRole !== 'admin') {
+                return redirect()->back()->with('error', 'You cannot change the role of the last admin. Create another admin first.');
+            }
+            if ($incomingStatus !== 'active') {
+                return redirect()->back()->with('error', 'You cannot deactivate the last admin. Create another admin first.');
+            }
+        }
+
+        // Prevent self-demote and self-deactivate for admins
+        if ($isSelf && $user->hasRole('admin')) {
+            if ($incomingRole !== 'admin') {
+                return redirect()->back()->with('error', 'You cannot change your own role from admin. Ask another admin to make this change.');
+            }
+            if ($incomingStatus !== 'active') {
+                return redirect()->back()->with('error', 'You cannot deactivate your own account.');
+            }
+        }
 
         $user->fullname = $validated['fullname'];
         $user->email = $validated['email'];
-        if ($validated['password']) {
+        if (!empty($validated['password'])) {
             $user->password = Hash::make($validated['password']);
         }
-        $user->phone = $validated['phone'];
+        $user->phone = $validated['phone'] ?? null;
         $user->status = $validated['status'];
         $user->save();
 
@@ -84,6 +120,18 @@ class SettingsController extends Controller
         // Prevent deleting own account
         if ($user->id === Auth::id()) {
             return redirect()->route('settings.users')->with('error', 'You cannot delete your own account!');
+        }
+
+        // Prevent deleting the last remaining admin
+        $adminCount = User::role('admin')->count();
+        if ($user->hasRole('admin') && $adminCount <= 1) {
+            return redirect()->route('settings.users')->with('error', 'You cannot delete the last admin. Create another admin first.');
+        }
+
+        // Prevent deleting the primary (first) admin
+        $firstAdminId = User::role('admin')->orderBy('created_at', 'asc')->value('id');
+        if ($user->id === $firstAdminId) {
+            return redirect()->route('settings.users')->with('error', 'You cannot delete the primary admin account.');
         }
 
         $user->delete();

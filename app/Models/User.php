@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -13,7 +14,7 @@ use OwenIt\Auditing\Auditable as AuditableTrait;
 class User extends Authenticatable implements AuditableContract
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasRoles, AuditableTrait;
+    use HasFactory, Notifiable, HasRoles, AuditableTrait, CanResetPassword;
 
     /**
      * The guard name for Spatie Permission

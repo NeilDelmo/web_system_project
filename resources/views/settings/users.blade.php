@@ -94,7 +94,7 @@
                                     <button class="btn btn-sm btn-warning" onclick="editUser({{ $user->id }})">
                                         <i class="bi bi-pencil"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-danger" onclick="deleteUser({{ $user->id }}, '{{ $user->fullname }}')">
+                                    <button class="btn btn-sm btn-danger" onclick="deleteUser({{ $user->id }}, '{{ $user->fullname }}')" @if(isset($firstAdminId) && $user->id === $firstAdminId) disabled title="Primary admin cannot be deleted" @endif>
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </td>
@@ -227,6 +227,9 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const users = @json($users);
+        const adminCount = {{ $adminCount ?? 0 }};
+        const firstAdminId = {{ $firstAdminId ?? 'null' }};
+        const selfId = {{ $selfId ?? 'null' }};
 
         function editUser(userId) {
             const user = users.find(u => u.id === userId);
@@ -239,6 +242,28 @@
             document.getElementById('edit_status').value = user.status;
 
             document.getElementById('editUserForm').action = `/settings/users/${userId}`;
+
+            // Apply safety UI rules
+            const roleSelect = document.getElementById('edit_role');
+            const statusSelect = document.getElementById('edit_status');
+            // Reset state first
+            roleSelect.disabled = false;
+            Array.from(statusSelect.options).forEach(o => o.disabled = false);
+
+            const isAdmin = (user.roles && user.roles[0] && user.roles[0].name === 'admin');
+            const isOnlyAdmin = (adminCount === 1 && isAdmin && user.status === 'active');
+            const isPrimaryAdmin = (user.id === firstAdminId);
+            const isSelf = (user.id === selfId);
+
+            // Do not allow changing role of last admin, primary admin, or self if admin
+            const disableRole = (isOnlyAdmin || isPrimaryAdmin || (isSelf && isAdmin));
+            roleSelect.disabled = disableRole;
+
+            // Only block inactive when it's the last admin or self-admin (primary admin can be deactivated if not the last admin)
+            const disableInactive = (isOnlyAdmin || (isSelf && isAdmin));
+            Array.from(statusSelect.options).forEach(o => {
+                if (o.value === 'inactive') o.disabled = disableInactive;
+            });
             
             new bootstrap.Modal(document.getElementById('editUserModal')).show();
         }
@@ -260,5 +285,5 @@
             }
         }
     </script>
-</body>
+  </body>
 </html>
