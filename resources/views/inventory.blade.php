@@ -466,7 +466,12 @@
                             </thead>
                             <tbody>
                                 @foreach($purchaseRequests as $request)
-                                    <tr>
+                                    @php
+                                        $isOverdue = $request->status === 'requested' 
+                                            && $request->date_needed 
+                                            && $request->date_needed->isPast();
+                                    @endphp
+                                    <tr class="{{ $isOverdue ? 'table-danger' : '' }}">
                                         <td>#PR-{{ str_pad($request->id, 3, '0', STR_PAD_LEFT) }}</td>
                                         <td>{{ $request->ingredient->name }}</td>
                                         <td>{{ $request->supplier ? $request->supplier->name : 'N/A' }}</td>
@@ -474,6 +479,9 @@
                                         <td>
                                             @if($request->status === 'requested')
                                                 <span class="badge bg-warning text-dark">Requested</span>
+                                                @if($isOverdue)
+                                                    <br><small class="text-danger fw-bold"><i class="bi bi-exclamation-triangle-fill"></i> OVERDUE</small>
+                                                @endif
                                             @elseif($request->status === 'received')
                                                 <span class="badge bg-success">Received</span>
                                             @else
@@ -481,7 +489,18 @@
                                             @endif
                                         </td>
                                         <td>{{ $request->requestedBy ? $request->requestedBy->fullname : 'Admin' }}</td>
-                                        <td>{{ $request->date_needed ? $request->date_needed->format('Y-m-d') : 'N/A' }}</td>
+                                        <td>
+                                            @if($request->date_needed)
+                                                <span class="{{ $isOverdue ? 'text-danger fw-bold' : '' }}">
+                                                    {{ $request->date_needed->format('Y-m-d') }}
+                                                    @if($isOverdue)
+                                                        <br><small>({{ $request->date_needed->diffForHumans() }})</small>
+                                                    @endif
+                                                </span>
+                                            @else
+                                                N/A
+                                            @endif
+                                        </td>
                                         <td>{{ $request->created_at->format('Y-m-d') }}</td>
                                         <td>
                                             <button class="btn btn-sm btn-info view-purchase-request" 

@@ -303,9 +303,24 @@
                         </button>
                     </div>
 
-                    <div class="row g-4">
+                    <!-- Category Filter -->
+                    <div class="mb-3">
+                        <div class="row align-items-center">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold small mb-1">Filter by Category:</label>
+                                <select class="form-select" id="categoryFilter">
+                                    <option value="">All Categories</option>
+                                    @foreach($categories as $category)
+                                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-4" id="productsContainer">
                         @forelse($products as $product)
-                        <div class="col-md-4">
+                        <div class="col-md-4 product-item" data-category-id="{{ $product->category_id ?? '' }}">
                             <div class="card product-card text-center">
                                 <div class="card-body">
                                     <img src="{{  $product->image ? asset('storage/' . $product->image) : asset('images/placeholder.jpg') }}" class="card-img-top" alt="{{ $product->name }}">
@@ -726,10 +741,6 @@
                             <p id="view_category_description" class="form-control-plaintext border p-2 rounded bg-light"></p>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label fw-semibold">Status</label>
-                            <p id="view_category_status" class="form-control-plaintext border p-2 rounded bg-light"></p>
-                        </div>
-                        <div class="mb-3">
                             <label class="form-label fw-semibold">Products Count</label>
                             <p id="view_category_products_count" class="form-control-plaintext border p-2 rounded bg-light"></p>
                         </div>
@@ -773,13 +784,6 @@
                             <div class="mb-3">
                                 <label class="form-label fw-semibold">Description</label>
                                 <textarea class="form-control" name="description" id="edit_category_description" rows="3" placeholder="Enter category description"></textarea>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">Status</label>
-                                <select class="form-select" name="status" id="edit_category_status" required>
-                                    <option value="active">Active</option>
-                                    <option value="inactive">Inactive</option>
-                                </select>
                             </div>
                             <div class="text-end">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -1237,6 +1241,23 @@
                     tab.show();
                 }
             }
+
+            // Category Filter for Products
+            const categoryFilter = document.getElementById('categoryFilter');
+            if (categoryFilter) {
+                categoryFilter.addEventListener('change', function() {
+                    const selectedCategory = this.value;
+                    const productItems = document.querySelectorAll('.product-item');
+                    
+                    productItems.forEach(item => {
+                        if (selectedCategory === '' || item.getAttribute('data-category-id') === selectedCategory) {
+                            item.style.display = '';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                });
+            }
         });
 
         // Auto-populate unit when ingredient is selected and disable duplicates
@@ -1446,7 +1467,6 @@ document.querySelectorAll('.view-category').forEach(button => {
                 // Populate view modal
                 document.getElementById('view_category_name').textContent = category.name || 'N/A';
                 document.getElementById('view_category_description').textContent = category.description || 'No description available';
-                document.getElementById('view_category_status').textContent = category.status ? category.status.charAt(0).toUpperCase() + category.status.slice(1) : 'N/A';
                 document.getElementById('view_category_products_count').textContent = (category.products_count || category.products?.length || 0) + ' products';
                 
                 // Show modal
@@ -1471,7 +1491,6 @@ document.querySelectorAll('.edit-category').forEach(button => {
                 // Populate the edit form
                 document.getElementById('edit_category_name').value = category.name;
                 document.getElementById('edit_category_description').value = category.description || '';
-                document.getElementById('edit_category_status').value = category.status;
                 
                 // Set form action
                 document.getElementById('editCategoryForm').action = `/categories/${categoryId}`;

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Orders;
 use App\Models\OrderItems;
 use App\Models\Products;
+use App\Models\PricingRule;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
@@ -23,6 +24,48 @@ class Sale_OrderController extends Controller
         return view('sale_order', compact('orders', 'products'));
     }
 
+    /**
+     * Calculate price after applying pricing rules
+     */
+    private function calculatePriceWithDiscount($product, $quantity)
+    {
+        $basePrice = $product->price;
+        
+        // Find applicable pricing rule
+        $pricingRule = PricingRule::where('product_id', $product->id)
+            ->where('status', 'active')
+            ->where('min_quantity', '<=', $quantity)
+            ->orderBy('min_quantity', 'desc')
+            ->first();
+        
+        if (!$pricingRule) {
+            return [
+                'unit_price' => $basePrice,
+                'discount_applied' => 0,
+                'subtotal' => $basePrice * $quantity
+            ];
+        }
+        
+        $discountAmount = 0;
+        
+        if ($pricingRule->discount_type === 'percentage') {
+            $discountAmount = ($basePrice * $pricingRule->discount_value) / 100;
+        } else { // fixed
+            $discountAmount = $pricingRule->discount_value;
+        }
+        
+        $discountedPrice = max(0, $basePrice - $discountAmount);
+        
+        return [
+            'unit_price' => $discountedPrice,
+            'original_price' => $basePrice,
+            'discount_applied' => $discountAmount,
+            'discount_type' => $pricingRule->discount_type,
+            'discount_value' => $pricingRule->discount_value,
+            'subtotal' => $discountedPrice * $quantity
+        ];
+    }
+
     public function store(Request $request) {
         $validated = $request->validate([
             'order_type' => 'required|in:walk-in,online,phone',
@@ -37,8 +80,10 @@ class Sale_OrderController extends Controller
         try {
             DB::beginTransaction();
 
-            // Calculate total amount
+            // Calculate total amount with pricing rules
             $totalAmount = 0;
+            $itemsWithPricing = [];
+            
             foreach ($validated['items'] as $item) {
                 $product = Products::findOrFail($item['product_id']);
                 
@@ -50,7 +95,15 @@ class Sale_OrderController extends Controller
                     ], 422);
                 }
                 
-                $totalAmount += $product->price * $item['quantity'];
+                // Calculate price with discount
+                $pricing = $this->calculatePriceWithDiscount($product, $item['quantity']);
+                $itemsWithPricing[] = [
+                    'product' => $product,
+                    'quantity' => $item['quantity'],
+                    'pricing' => $pricing
+                ];
+                
+                $totalAmount += $pricing['subtotal'];
             }
 
             // Create order
@@ -65,19 +118,21 @@ class Sale_OrderController extends Controller
             ]);
 
             // Create order items and update product stock
-            foreach ($validated['items'] as $item) {
-                $product = Products::findOrFail($item['product_id']);
+            foreach ($itemsWithPricing as $itemData) {
+                $product = $itemData['product'];
+                $quantity = $itemData['quantity'];
+                $pricing = $itemData['pricing'];
                 
                 OrderItems::create([
                     'order_id' => $order->id,
                     'product_id' => $product->id,
-                    'quantity' => $item['quantity'],
-                    'unit_price' => $product->price,
-                    'subtotal' => $product->price * $item['quantity'],
+                    'quantity' => $quantity,
+                    'unit_price' => $pricing['unit_price'],
+                    'subtotal' => $pricing['subtotal'],
                 ]);
 
                 // Deduct from stock
-                $product->decrement('stock_quantity', $item['quantity']);
+                $product->decrement('stock_quantity', $quantity);
             }
 
             DB::commit();
