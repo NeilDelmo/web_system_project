@@ -7,6 +7,8 @@
     <title>Production Management - Bakery Management System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
     <style>
         body {
             background: linear-gradient(135deg, #fff9e6, #fff3cd, #fce6a4);
@@ -199,6 +201,7 @@
             box-shadow: 0 0 5px rgba(0,0,0,0.2);
             transition: all 0.6s;
         }
+
     </style>
 </head>
 <body>
@@ -210,14 +213,16 @@
                 <i class="bi bi-chevron-left"></i>
             </div>
         </div>
-        <a href="{{ route('dashboard') }}" class="nav-link"><i class="bi bi-speedometer2"></i> <span>Dashboard</span></a>
-        <a href="{{ route('products.index') }}" class="nav-link"><i class="bi bi-basket"></i> <span>Product Management</span></a>
-        <a href="{{ route('inventory') }}" class="nav-link"><i class="bi bi-box-seam"></i> <span>Inventory</span></a>
-        <a href="{{ route('sales') }}" class="nav-link"><i class="bi bi-cart"></i> <span>Sales & Orders</span></a>
-        <a href="{{ route('production') }}" class="nav-link active"><i class="bi bi-gear-fill"></i> <span>Production</span></a>
-        @can('view_reports')
-        <a href="{{ route('reports') }}" class="nav-link"><i class="bi bi-bar-chart"></i> <span>Reports</span></a>
-        @endcan
+        <nav class="nav flex-column">
+            <a href="{{ route('dashboard') }}" class="nav-link"><i class="bi bi-speedometer2 me-2"></i> <span>Dashboard</span></a>
+            <a href="{{ route('products.index') }}" class="nav-link"><i class="bi bi-basket-fill me-2"></i> <span>Products</span></a>
+            <a href="{{ route('inventory') }}" class="nav-link"><i class="bi bi-box-seam me-2"></i> <span>Inventory</span></a>
+            <a href="{{ route('sales') }}" class="nav-link"><i class="bi bi-cart-check-fill me-2"></i> <span>Sales & Orders</span></a>
+            <a href="{{ route('production') }}" class="nav-link active"><i class="bi bi-gear-fill me-2 active"></i> <span>Production</span></a>
+            @can('view_reports')
+            <a href="{{ route('reports') }}" class="nav-link"><i class="bi bi-bar-chart-fill"></i> <span>Reports</span></a>
+            @endcan
+        </nav>
         
         <div class="mt-auto p-3 text-center border-top">
             <div class="dropdown">
@@ -252,7 +257,7 @@
     <!-- Main Content -->
     <div class="main-content" id="mainContent">
         <div class="container-fluid">
-            <h1 class="mb-4">Production Management</h1>
+            <h2 class="mb-4 fw-bold">Production Management</h2>
 
             @if(session('success'))
                 <div class="alert alert-success alert-dismissible fade show" role="alert">

@@ -189,14 +189,14 @@
             </div>
         </div>
 
-        <nav class="nav flex-column mt-4">
-            <a href="/dashboard" class="nav-link"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
-            <a href="/products" class="nav-link"><i class="bi bi-basket-fill me-2"></i>Products</a>
-            <a href="/inventory" class="nav-link"><i class="bi bi-box-seam me-2"></i>Inventory</a>
-            <a href="/sales" class="nav-link"><i class="bi bi-cart-check-fill me-2"></i>Sales & Orders</a>
-            <a href="/production" class="nav-link"><i class="bi bi-gear-fill me-2"></i>Production</a>
+        <nav class="nav flex-column">
+            <a href="/dashboard" class="nav-link"><i class="bi bi-speedometer2 me-2"></i><span>Dashboard</span></a>
+            <a href="/products" class="nav-link"><i class="bi bi-basket-fill me-2"></i><span>Products</span></a>
+            <a href="/inventory" class="nav-link"><i class="bi bi-box-seam me-2"></i><span>Inventory</span></a>
+            <a href="/sales" class="nav-link"><i class="bi bi-cart-check-fill me-2"></i><span>Sales & Orders</span></a>
+            <a href="/production" class="nav-link"><i class="bi bi-gear-fill me-2"></i><span>Production</span></a>
             @can('view_reports')
-            <a href="/reports" class="nav-link active"><i class="bi bi-bar-chart-line-fill me-2"></i>Reports</a>
+            <a href="/reports" class="nav-link active"><i class="bi bi-bar-chart-line-fill me-2"></i><span>Reports</span></a>
             @endcan
         </nav>
 

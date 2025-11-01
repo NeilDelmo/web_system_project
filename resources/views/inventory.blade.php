@@ -129,13 +129,22 @@
             font-weight: 600;
         }
 
+                /* Tabs */
         .tab-nav .nav-link {
-            color: #555;
+            color: #000 !important;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .tab-nav .nav-link:hover {
+            color: #b71c1c !important;
+            background-color: #fff3cd !important;
         }
 
         .tab-nav .nav-link.active {
-            border-bottom: 3px solid #fdd663;
-            color: #000;
+            border-bottom: 3px solid #fdd663 !important;
+            color: #000 !important;
+            font-weight: 600;
         }
 
         .inv-card {
@@ -187,25 +196,25 @@
             </div>
     </div>
 
-    <nav class="nav flex-column mt-4">
+    <nav class="nav flex-column">
         <a href="/dashboard" class="nav-link">
-            <i class="bi bi-speedometer2 me-2"></i>Dashboard
+            <i class="bi bi-speedometer2 me-2"></i><span>Dashboard</span>
         </a>
         <a href="/products" class="nav-link">
-            <i class="bi bi-basket-fill me-2"></i>Products
+            <i class="bi bi-basket-fill me-2"></i><span>Products</span>
         </a>
         <a href="/inventory" class="nav-link active">
-            <i class="bi bi-box-seam me-2"></i>Inventory
+            <i class="bi bi-box-seam me-2"></i><span>Inventory</span>
         </a>
         <a href="/sales" class="nav-link">
-            <i class="bi bi-cart-check-fill me-2"></i>Sales & Orders
+            <i class="bi bi-cart-check-fill me-2"></i><span>Sales & Orders</span>
         </a>
         <a href="/production" class="nav-link">
-            <i class="bi bi-gear-fill me-2"></i>Production
+            <i class="bi bi-gear-fill me-2"></i><span>Production</span>
         </a>
         @can('view_reports')
         <a href="/reports" class="nav-link">
-            <i class="bi bi-bar-chart-line-fill me-2"></i>Reports
+            <i class="bi bi-bar-chart-line-fill me-2"></i><span>Reports</span>
         </a>
         @endcan
     </nav>

@@ -108,7 +108,7 @@
             flex-grow: 1;
             overflow-y: auto;
             height: 100vh;
-            padding: 20px;
+            padding: 0px;
             transition: margin-left 0.6s ease;
         }
 
@@ -147,15 +147,25 @@
             align-items: center;
         }
 
+
+                /* Tabs */
         .tab-nav .nav-link {
-            color: #555;
+            color: #000 !important;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .tab-nav .nav-link:hover {
+            color: #b71c1c !important;
+            background-color: #fff3cd !important;
         }
 
         .tab-nav .nav-link.active {
-            border-bottom: 3px solid #fdd663;
-            color: #000;
+            border-bottom: 3px solid #fdd663 !important;
+            color: #000 !important;
+            font-weight: 600;
         }
-
+        
         /* Cards */
         .card-item {
             border: none;
@@ -189,7 +199,7 @@
             </div>
         </div>
 
-        <nav class="nav flex-column mt-4">
+        <nav class="nav flex-column">
             <a href="/dashboard" class="nav-link"><i class="bi bi-speedometer2 me-2"></i><span>Dashboard</span></a>
             <a href="/products" class="nav-link"><i class="bi bi-basket-fill me-2"></i><span>Products</span></a>
             <a href="/inventory" class="nav-link"><i class="bi bi-box-seam me-2"></i><span>Inventory</span></a>
@@ -235,7 +245,7 @@
     <main class="main-content" id="mainContent">
         <div class="page-header">
             <div>
-                <h2>Sales & Orders</h2>
+                <h2 class="fw-bold">Sales & Orders</h2>
                 <p class="text-muted mb-0 small">Manage all bakery sales, customers, and order transactions.</p>
             </div>
         </div>
