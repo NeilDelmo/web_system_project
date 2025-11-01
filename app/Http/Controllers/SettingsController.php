@@ -9,6 +9,7 @@ use App\Models\SystemSetting;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Mail;
 
 class SettingsController extends Controller
 {
@@ -79,7 +80,7 @@ class SettingsController extends Controller
     public function destroyUser($id)
     {
         $user = User::findOrFail($id);
-        
+
         // Prevent deleting own account
         if ($user->id === Auth::id()) {
             return redirect()->route('settings.users')->with('error', 'You cannot delete your own account!');
@@ -103,8 +104,16 @@ class SettingsController extends Controller
             'low_stock_threshold' => SystemSetting::get('low_stock_threshold', '10'),
             'notify_orders' => SystemSetting::get('notify_orders', '1'),
             'notify_production' => SystemSetting::get('notify_production', '1'),
+            'mail_mailer' => SystemSetting::get('mail_mailer', 'smtp'),
+            'mail_host' => SystemSetting::get('mail_host', 'smtp.mailtrap.io'),
+            'mail_port' => SystemSetting::get('mail_port', '2525'),
+            'mail_username' => SystemSetting::get('mail_username', ''),
+            'mail_password' => SystemSetting::get('mail_password', ''),
+            'mail_encryption' => SystemSetting::get('mail_encryption', 'tls'),
+            'mail_from_address' => SystemSetting::get('mail_from_address', 'noreply@cuevasbakery.com'),
+            'mail_from_name' => SystemSetting::get('mail_from_name', 'Cuevas Bakery'),
         ];
-        
+
         return view('settings.system', compact('settings'));
     }
 
@@ -149,7 +158,44 @@ class SettingsController extends Controller
         $audits = \OwenIt\Auditing\Models\Audit::with('user')
             ->orderBy('created_at', 'desc')
             ->paginate(50);
-        
+
         return view('settings.audit-logs', compact('audits'));
     }
+
+    //email settings
+
+    public function updateEmailSettings(Request $request)
+    {
+        $validated = $request->validate([
+            'mail_mailer' => 'required|string|max:255',
+            'mail_host' => 'required|string|max:255',
+            'mail_port' => 'required|integer|min:1|max:65535',
+            'mail_username' => 'nullable|string|max:255',
+            'mail_password' => 'nullable|string|max:255',
+            'mail_from_address' => 'required|email|max:255',
+            'mail_from_name' => 'required|string|max:255',
+        ]);
+
+        foreach ($validated as $key => $value) {
+            SystemSetting::set($key, $value);
+        }
+
+        return redirect()->route('settings.system')->with('success', 'Email settings updated successfully!');
+    }
+
+public function testEmail()
+{
+    try {
+        $to = SystemSetting::get('bakery_email', auth()->user()->email);
+        
+        Mail::raw('This is a test email from Cuevas Bakery Management System.', function ($message) use ($to) {
+            $message->to($to)
+                    ->subject('Test Email - Cuevas Bakery');
+        });
+        
+        return response()->json(['success' => true]);
+    } catch (\Exception $e) {
+        return response()->json(['success' => false, 'message' => $e->getMessage()]);
+    }
+}
 }

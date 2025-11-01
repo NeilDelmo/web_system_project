@@ -147,7 +147,8 @@ Route::middleware(['auth', 'preventBackHistory'])->group(function () {
         Route::get('/system', [\App\Http\Controllers\SettingsController::class, 'systemSettings'])->name('settings.system');
         Route::post('/system/bakery-info', [\App\Http\Controllers\SettingsController::class, 'updateBakeryInfo'])->name('settings.bakery-info.update');
         Route::post('/system/notifications', [\App\Http\Controllers\SettingsController::class, 'updateNotifications'])->name('settings.notifications.update');
-        
+        Route::post('/system/email', [\App\Http\Controllers\SettingsController::class, 'updateEmailSettings'])->name('settings.email.update');
+
         // Audit Logs
         Route::get('/audit-logs', [\App\Http\Controllers\SettingsController::class, 'auditLogs'])->name('settings.audit-logs');
     });
@@ -186,3 +187,7 @@ Route::prefix('test-errors')->group(function () {
     })->name('test.503');
     
 });
+
+
+//test email
+Route::post('/system/test-email', [\App\Http\Controllers\SettingsController::class, 'testEmail'])->name('settings.test-email');

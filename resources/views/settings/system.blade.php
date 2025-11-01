@@ -86,21 +86,67 @@
         </div>
 
         <!-- Email Settings -->
-        <div class="col-md-12">
-          <div class="card shadow-sm">
-            <div class="card-body">
-              <h5 class="card-title"><i class="bi bi-envelope text-success"></i> Email Settings</h5>
-              <p class="text-muted small">Configure email notifications and SMTP settings</p>
-              <div class="alert alert-info">
-                <i class="bi bi-info-circle me-2"></i>
-                Configure SMTP server details, sender email, and notification preferences for order confirmations, low stock alerts, and production updates.
-              </div>
-              <button class="btn btn-success btn-sm" disabled>
-                <i class="bi bi-gear me-1"></i> Configure Email
-              </button>
-            </div>
+<div class="col-md-12">
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h5 class="card-title"><i class="bi bi-envelope text-success"></i> Email Settings</h5>
+      <p class="text-muted small">Set up email notifications for your bakery</p>
+      
+      <form action="{{ route('settings.email.update') }}" method="POST" class="mt-3">
+        @csrf
+        
+        <!-- Gmail Instructions -->
+        <div class="alert alert-info mb-4">
+          <h6 class="alert-heading"><i class="bi bi-google me-2"></i>Gmail Setup Instructions</h6>
+          <p class="mb-2">Follow these steps to enable email notifications:</p>
+          <ol class="mb-0">
+            <li>Go to your <a href="https://myaccount.google.com/security" target="_blank" class="alert-link">Google Account Security</a></li>
+            <li>Enable <strong>"2-Step Verification"</strong> if not already enabled</li>
+            <li>Search for <strong>"App passwords"</strong> and click it</li>
+            <li>Generate a new app password for "Mail"</li>
+            <li>Copy that 16-character password and paste it below (not your regular Gmail password!)</li>
+          </ol>
+        </div>
+
+        <!-- Hidden technical fields (auto-configured for Gmail) -->
+        <input type="hidden" name="mail_mailer" value="smtp">
+        <input type="hidden" name="mail_host" value="smtp.gmail.com">
+        <input type="hidden" name="mail_port" value="587">
+        <input type="hidden" name="mail_encryption" value="tls">
+
+        <div class="row">
+          <!-- User-friendly fields -->
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Gmail Address *</label>
+            <input type="email" name="mail_username" class="form-control" value="{{ $settings['mail_username'] }}" placeholder="yourbakery@gmail.com" required>
+            <small class="text-muted">Your Gmail email address</small>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Gmail App Password *</label>
+            <input type="password" name="mail_password" class="form-control" value="{{ $settings['mail_password'] }}" placeholder="16-character app password" required>
+            <small class="text-muted">Use the app password generated in step 4 above</small>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Bakery Name *</label>
+            <input type="text" name="mail_from_name" class="form-control" value="{{ $settings['mail_from_name'] }}" placeholder="Cuevas Bakery" required>
+            <small class="text-muted">How your bakery name appears in emails</small>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Reply-To Email *</label>
+            <input type="email" name="mail_from_address" class="form-control" value="{{ $settings['mail_from_address'] }}" placeholder="info@cuevasbakery.com" required>
+            <small class="text-muted">Where customers can reply to (can be same as Gmail)</small>
           </div>
         </div>
+        <button type="submit" class="btn btn-success">
+          <i class="bi bi-save me-1"></i> Save Email Settings
+        </button>
+        <button type="button" class="btn btn-outline-secondary ms-2" onclick="testEmail()">
+          <i class="bi bi-send me-1"></i> Send Test Email
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
 
         <!-- Notification Preferences -->
         <div class="col-md-12">
@@ -215,4 +261,27 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+<script>
+  function testEmail() {
+    if(confirm('Send a test email to your bakery email address?')) {
+        fetch('{{ route("settings.test-email") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                alert('Test email sent successfully! Check your inbox.');
+            } else {
+                alert('Failed to send test email: ' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('Error sending test email.');
+        });
+    }
+}
 </html>
