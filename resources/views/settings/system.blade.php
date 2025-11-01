@@ -52,13 +52,35 @@
             <div class="card-body">
               <h5 class="card-title"><i class="bi bi-shop text-primary"></i> Bakery Information</h5>
               <p class="text-muted small">Update your bakery's basic information</p>
-              <div class="alert alert-info">
-                <i class="bi bi-info-circle me-2"></i>
-                This section will allow you to configure bakery name, address, contact details, and operating hours.
-              </div>
-              <button class="btn btn-primary btn-sm" disabled>
-                <i class="bi bi-pencil me-1"></i> Edit Information
-              </button>
+              
+              <form action="{{ route('settings.bakery-info.update') }}" method="POST" class="mt-3">
+                @csrf
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Bakery Name *</label>
+                    <input type="text" name="bakery_name" class="form-control" value="{{ $settings['bakery_name'] }}" required>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Phone Number</label>
+                    <input type="text" name="bakery_phone" class="form-control" value="{{ $settings['bakery_phone'] }}">
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" name="bakery_email" class="form-control" value="{{ $settings['bakery_email'] }}">
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Operating Hours</label>
+                    <input type="text" name="operating_hours" class="form-control" value="{{ $settings['operating_hours'] }}" placeholder="e.g., Mon-Fri: 8AM-6PM">
+                  </div>
+                  <div class="col-md-12 mb-3">
+                    <label class="form-label">Address</label>
+                    <textarea name="bakery_address" class="form-control" rows="2">{{ $settings['bakery_address'] }}</textarea>
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                  <i class="bi bi-save me-1"></i> Save Changes
+                </button>
+              </form>
             </div>
           </div>
         </div>
@@ -86,13 +108,47 @@
             <div class="card-body">
               <h5 class="card-title"><i class="bi bi-bell text-warning"></i> Notification Preferences</h5>
               <p class="text-muted small">Manage system notification settings</p>
-              <div class="alert alert-info">
-                <i class="bi bi-info-circle me-2"></i>
-                Control which notifications are sent, notification frequency, and threshold settings for low stock alerts and production milestones.
-              </div>
-              <button class="btn btn-warning btn-sm" disabled>
-                <i class="bi bi-sliders me-1"></i> Manage Notifications
-              </button>
+              
+              <form action="{{ route('settings.notifications.update') }}" method="POST" class="mt-3">
+                @csrf
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" name="notify_low_stock" value="1" id="notifyLowStock" {{ $settings['notify_low_stock'] ? 'checked' : '' }}>
+                      <label class="form-check-label" for="notifyLowStock">
+                        <strong>Low Stock Alerts</strong><br>
+                        <small class="text-muted">Get notified when inventory is running low</small>
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Low Stock Threshold</label>
+                    <input type="number" name="low_stock_threshold" class="form-control" value="{{ $settings['low_stock_threshold'] }}" min="1" max="1000" required>
+                    <small class="text-muted">Alert when stock falls below this quantity</small>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" name="notify_orders" value="1" id="notifyOrders" {{ $settings['notify_orders'] ? 'checked' : '' }}>
+                      <label class="form-check-label" for="notifyOrders">
+                        <strong>Order Notifications</strong><br>
+                        <small class="text-muted">Get notified about new orders</small>
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" name="notify_production" value="1" id="notifyProduction" {{ $settings['notify_production'] ? 'checked' : '' }}>
+                      <label class="form-check-label" for="notifyProduction">
+                        <strong>Production Updates</strong><br>
+                        <small class="text-muted">Get notified about production milestones</small>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-warning">
+                  <i class="bi bi-save me-1"></i> Save Preferences
+                </button>
+              </form>
             </div>
           </div>
         </div>

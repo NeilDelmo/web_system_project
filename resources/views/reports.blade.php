@@ -180,10 +180,8 @@
     </style>
 </head>
 <body>
-
-<div class="d-flex">
     <!-- Sidebar -->
-    <aside class="sidebar position-relative" id="sidebar">
+    <aside class="sidebar" id="sidebar">
         <div class="brand d-flex align-items-center justify-content-center">
             <img src="{{ asset('images/logo.png') }}" alt="Cuevas Bread Logo" class="sidebar-logo">
              <div class="sidebar-toggle text-dark" id="sidebarToggle">

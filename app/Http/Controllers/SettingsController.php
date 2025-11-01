@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\SystemSetting;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
@@ -92,7 +93,54 @@ class SettingsController extends Controller
     // System Settings
     public function systemSettings()
     {
-        return view('settings.system');
+        $settings = [
+            'bakery_name' => SystemSetting::get('bakery_name', 'Cuevas Bakery'),
+            'bakery_address' => SystemSetting::get('bakery_address', ''),
+            'bakery_phone' => SystemSetting::get('bakery_phone', ''),
+            'bakery_email' => SystemSetting::get('bakery_email', ''),
+            'operating_hours' => SystemSetting::get('operating_hours', ''),
+            'notify_low_stock' => SystemSetting::get('notify_low_stock', '1'),
+            'low_stock_threshold' => SystemSetting::get('low_stock_threshold', '10'),
+            'notify_orders' => SystemSetting::get('notify_orders', '1'),
+            'notify_production' => SystemSetting::get('notify_production', '1'),
+        ];
+        
+        return view('settings.system', compact('settings'));
+    }
+
+    public function updateBakeryInfo(Request $request)
+    {
+        $validated = $request->validate([
+            'bakery_name' => 'required|string|max:255',
+            'bakery_address' => 'nullable|string|max:500',
+            'bakery_phone' => 'nullable|string|max:20',
+            'bakery_email' => 'nullable|email|max:255',
+            'operating_hours' => 'nullable|string|max:500',
+        ]);
+
+        foreach ($validated as $key => $value) {
+            SystemSetting::set($key, $value);
+        }
+
+        return redirect()->route('settings.system')->with('success', 'Bakery information updated successfully!');
+    }
+
+    public function updateNotifications(Request $request)
+    {
+        $validated = $request->validate([
+            'notify_low_stock' => 'nullable|boolean',
+            'low_stock_threshold' => 'required|integer|min:1|max:1000',
+            'notify_orders' => 'nullable|boolean',
+            'notify_production' => 'nullable|boolean',
+        ]);
+
+        // Handle checkboxes - if not checked, they won't be in the request
+        SystemSetting::set('notify_low_stock', $request->has('notify_low_stock') ? '1' : '0');
+        SystemSetting::set('notify_orders', $request->has('notify_orders') ? '1' : '0');
+        SystemSetting::set('notify_production', $request->has('notify_production') ? '1' : '0');
+        SystemSetting::set('low_stock_threshold', $validated['low_stock_threshold']);
+
+        return redirect()->route('settings.system')->with('success', 'Notification preferences updated successfully!');
     }
 
     // Audit Logs
