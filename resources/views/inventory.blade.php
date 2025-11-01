@@ -143,23 +143,30 @@
         <a href="/production" class="nav-link">
             <i class="bi bi-gear-fill me-2"></i>Production
         </a>
+        @can('view_reports')
         <a href="/reports" class="nav-link">
             <i class="bi bi-bar-chart-line-fill me-2"></i>Reports
         </a>
+        @endcan
     </nav>
         <div class="sidebar-footer">
             <div class="dropdown text-center">
                 <a href="#" class="d-flex flex-column align-items-center text-decoration-none text-dark dropdown-toggle" id="adminMenu" data-bs-toggle="dropdown" aria-expanded="false">
-                    <img src="{{ asset('images/user-avatar.jpg') }}" alt="User" class="rounded-circle mb-2" width="50" height="50">
-                    <strong>Admin</strong>
-                    <small class="text-muted">Manager</small>
+                    @role('admin')
+                    <i class="bi bi-person-badge-fill display-4 text-primary mb-2"></i>
+                    @else
+                    <i class="bi bi-person-fill display-4 text-secondary mb-2"></i>
+                    @endrole
+                    <strong>{{ auth()->user()->fullname }}</strong>
+                    <small class="text-muted">{{ auth()->user()->roles->first()->name ?? 'User' }}</small>
                 </a>
 
                 <ul class="dropdown-menu shadow border-0 mt-2 text-center" aria-labelledby="adminMenu">
-                    <!-- Optional profile link -->
                     <li><a class="dropdown-item py-2" href="#"><i class="bi bi-person-circle me-1"></i> Profile</a></li>
+                    @role('admin')
+                    <li><a class="dropdown-item py-2" href="{{ route('settings.index') }}"><i class="bi bi-gear me-1"></i> Settings</a></li>
+                    @endrole
                     <li><hr class="dropdown-divider"></li>
-                    <!-- Logout link -->
                     <li>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf

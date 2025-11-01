@@ -117,13 +117,38 @@
         <a href="{{ route('inventory') }}" class="nav-link"><i class="bi bi-box-seam"></i> Inventory</a>
         <a href="{{ route('sales') }}" class="nav-link"><i class="bi bi-cart"></i> Sales & Orders</a>
         <a href="{{ route('production') }}" class="nav-link active"><i class="bi bi-gear-fill"></i> Production</a>
+        @can('view_reports')
         <a href="{{ route('reports') }}" class="nav-link"><i class="bi bi-bar-chart"></i> Reports</a>
-        <form method="POST" action="{{ route('logout') }}" style="margin: 0.25rem 0.75rem;">
-            @csrf
-            <button type="submit" class="nav-link" style="width: 100%; background: none; border: none; text-align: left; cursor: pointer;">
-                <i class="bi bi-box-arrow-right"></i> Logout
-            </button>
-        </form>
+        @endcan
+        
+        <div class="mt-auto p-3 text-center border-top">
+            <div class="dropdown">
+                <a href="#" class="d-flex flex-column align-items-center text-decoration-none text-dark dropdown-toggle" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                    @role('admin')
+                    <i class="bi bi-person-badge-fill display-5 text-primary mb-2"></i>
+                    @else
+                    <i class="bi bi-person-fill display-5 text-secondary mb-2"></i>
+                    @endrole
+                    <strong style="font-size: 0.9rem;">{{ auth()->user()->fullname }}</strong>
+                    <small class="text-muted" style="font-size: 0.75rem;">{{ auth()->user()->roles->first()->name ?? 'User' }}</small>
+                </a>
+                <ul class="dropdown-menu shadow border-0" aria-labelledby="userMenu">
+                    <li><a class="dropdown-item py-1" href="#"><i class="bi bi-person-circle me-1"></i> Profile</a></li>
+                    @role('admin')
+                    <li><a class="dropdown-item py-1" href="{{ route('settings.index') }}"><i class="bi bi-gear me-1"></i> Settings</a></li>
+                    @endrole
+                    <li><hr class="dropdown-divider my-1"></li>
+                    <li>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="dropdown-item text-danger py-1">
+                                <i class="bi bi-box-arrow-right me-1"></i> Logout
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
     </div>
 
     <!-- Main Content -->
