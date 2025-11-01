@@ -199,59 +199,6 @@
           </div>
         </div>
 
-        <!-- Backup & Restore -->
-        <div class="col-md-12">
-          <div class="card shadow-sm">
-            <div class="card-body">
-              <h5 class="card-title"><i class="bi bi-cloud-arrow-down text-danger"></i> Backup & Restore</h5>
-              <p class="text-muted small">Manage database backups and restore points</p>
-              <div class="alert alert-info">
-                <i class="bi bi-info-circle me-2"></i>
-                Create manual backups, schedule automatic backups, and restore from previous backup points. Includes database and uploaded files.
-              </div>
-              <button class="btn btn-danger btn-sm me-2" disabled>
-                <i class="bi bi-download me-1"></i> Create Backup
-              </button>
-              <button class="btn btn-outline-danger btn-sm" disabled>
-                <i class="bi bi-upload me-1"></i> Restore Backup
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- System Information -->
-        <div class="col-md-12">
-          <div class="card shadow-sm">
-            <div class="card-body">
-              <h5 class="card-title"><i class="bi bi-info-square text-info"></i> System Information</h5>
-              <p class="text-muted small">Current system details and version information</p>
-              <table class="table table-sm">
-                <tbody>
-                  <tr>
-                    <th width="30%">System Version</th>
-                    <td>1.0.0</td>
-                  </tr>
-                  <tr>
-                    <th>PHP Version</th>
-                    <td>{{ phpversion() }}</td>
-                  </tr>
-                  <tr>
-                    <th>Laravel Version</th>
-                    <td>{{ app()->version() }}</td>
-                  </tr>
-                  <tr>
-                    <th>Timezone</th>
-                    <td>{{ config('app.timezone') }}</td>
-                  </tr>
-                  <tr>
-                    <th>Environment</th>
-                    <td><span class="badge bg-{{ app()->environment('production') ? 'success' : 'warning' }}">{{ ucfirst(app()->environment()) }}</span></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
       </div>
 
   <footer class="mt-5 mb-3 text-center">

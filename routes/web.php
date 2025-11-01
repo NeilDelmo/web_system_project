@@ -158,46 +158,10 @@ Route::middleware(['auth', 'preventBackHistory'])->group(function () {
         Route::post('/system/bakery-info', [\App\Http\Controllers\SettingsController::class, 'updateBakeryInfo'])->name('settings.bakery-info.update');
         Route::post('/system/notifications', [\App\Http\Controllers\SettingsController::class, 'updateNotifications'])->name('settings.notifications.update');
         Route::post('/system/email', [\App\Http\Controllers\SettingsController::class, 'updateEmailSettings'])->name('settings.email.update');
+        Route::post('/system/test-email', [\App\Http\Controllers\SettingsController::class, 'testEmail'])->name('settings.test-email');
 
         // Audit Logs
         Route::get('/audit-logs', [\App\Http\Controllers\SettingsController::class, 'auditLogs'])->name('settings.audit-logs');
     });
     
 });
-
-// ========================================
-// TEST ROUTES FOR ERROR PAGES
-// Remove these routes in production!
-// ========================================
-Route::prefix('test-errors')->group(function () {
-    
-    // Test 401 - Unauthorized (must be logged out to see this)
-    Route::get('/401', function () {
-        abort(401);
-    })->name('test.401');
-    
-    // Test 403 - Forbidden (must be logged in but lack permission)
-    Route::get('/403', function () {
-        abort(403);
-    })->middleware('auth')->name('test.403');
-    
-    // Test 404 - Not Found
-    Route::get('/404', function () {
-        abort(404);
-    })->name('test.404');
-    
-    // Test 500 - Server Error
-    Route::get('/500', function () {
-        abort(500);
-    })->name('test.500');
-    
-    // Test 503 - Service Unavailable
-    Route::get('/503', function () {
-        abort(503);
-    })->name('test.503');
-    
-});
-
-
-//test email
-Route::post('/system/test-email', [\App\Http\Controllers\SettingsController::class, 'testEmail'])->name('settings.test-email');
