@@ -282,8 +282,7 @@
         <main class="main-content" id="mainContent">
             <div class="page-header">
                 <div class="d-flex align-items-center gap-3">
-                    <img src="{{ asset('images/cuevaslogo.png') }}" alt="Cuevas Bakery Logo" style="height: 40px;">
-                    <div>
+                      <img src="{{ asset('images/cuevaslogo.png') }}" alt="Cuevas Bakery Logo" style="height: 40px;">
                     <h2>Products Management</h2>
                     <p class="text-muted mb-0 small">Manage your bakery’s products, categories, recipes, and pricing.</p>
                 </div>
