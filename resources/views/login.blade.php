@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cuevas Bread</title>
+  <link rel="icon" type="image/png" href="{{ asset('images/cuevaslogo.png') }}">
 
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -115,7 +116,11 @@
     <div class="row g-0">
       <!-- Form Section -->
       <div class="col-md-6 form-section">
-        <h2 class="login-title text-center">Welcome Back!</h2>
+        <div class="d-flex align-items-center justify-content-center gap-2 mb-3">
+          <img src="{{ asset('images/cuevaslogo.png') }}" alt="Cuevas Bakery Logo" style="height: 45px;">
+          <h2 class="login-title mb-0">Cuevas Bakery</h2>
+        </div>
+        <p class="text-center fw-semibold mb-4">Welcome Back!</p>
 
         @if ($errors->any())
           <div class="alert alert-danger alert-dismissible fade show" role="alert">

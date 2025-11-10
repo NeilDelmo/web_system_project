@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Products Management</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/cuevaslogo.png') }}">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -280,7 +281,9 @@
         <!-- Main Content -->
         <main class="main-content" id="mainContent">
             <div class="page-header">
-                <div>
+                <div class="d-flex align-items-center gap-3">
+                    <img src="{{ asset('images/cuevaslogo.png') }}" alt="Cuevas Bakery Logo" style="height: 40px;">
+                    <div>
                     <h2>Products Management</h2>
                     <p class="text-muted mb-0 small">Manage your bakery’s products, categories, recipes, and pricing.</p>
                 </div>

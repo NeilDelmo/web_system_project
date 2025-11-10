@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard - Cuevas Bakery</title>
+  <link rel="icon" type="image/png" href="{{ asset('images/cuevaslogo.png') }}">
 
   <!-- Google Font -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -219,7 +220,10 @@
     <div class="container-fluid">
       <div class="card shadow-sm mb-4">
         <div class="card-body">
-          <h3 class="card-title">Welcome, {{ auth()->user()?->full_name ?? auth()->user()?->username ?? 'User' }}</h3>
+          <div class="d-flex align-items-center gap-3 mb-2">
+            <img src="{{ asset('images/cuevaslogo.png') }}" alt="Cuevas Bakery Logo" style="height: 50px;">
+            <h3 class="card-title mb-0">Welcome, {{ auth()->user()?->full_name ?? auth()->user()?->username ?? 'User' }}</h3>
+          </div>
           <p class="card-text text-muted">You are now logged in to the Cuevas Bakery system.</p>
         </div>
       </div>

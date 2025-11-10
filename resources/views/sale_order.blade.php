@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sales & Orders</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/cuevaslogo.png') }}">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
@@ -244,9 +245,12 @@
     <!-- Main Content -->
     <main class="main-content" id="mainContent">
         <div class="page-header">
-            <div>
-                <h2 class="fw-bold">Sales & Orders</h2>
-                <p class="text-muted mb-0 small">Manage all bakery sales, customers, and order transactions.</p>
+            <div class="d-flex align-items-center gap-3">
+                <img src="{{ asset('images/cuevaslogo.png') }}" alt="Cuevas Bakery Logo" style="height: 40px;">
+                <div>
+                    <h2 class="fw-bold mb-0">Sales & Orders</h2>
+                    <p class="text-muted mb-0 small">Manage all bakery sales, customers, and order transactions.</p>
+                </div>
             </div>
         </div>
 

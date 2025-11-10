@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Forgot Password - Cuevas Bakery</title>
+  <link rel="icon" type="image/png" href="{{ asset('images/cuevaslogo.png') }}">
 
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -94,7 +95,11 @@
 
 <body>
   <div class="card forgot-card">
-    <h2 class="forgot-title text-center">Forgot Password?</h2>
+    <div class="d-flex align-items-center justify-content-center gap-2 mb-3">
+      <img src="{{ asset('images/cuevaslogo.png') }}" alt="Cuevas Bakery Logo" style="height: 45px;">
+      <h2 class="forgot-title mb-0">Cuevas Bakery</h2>
+    </div>
+    <p class="text-center fw-semibold mb-2">Forgot Password?</p>
     <p class="forgot-subtitle text-center">No worries! Enter your email and we'll send you a reset link.</p>
 
     @if (session('success'))

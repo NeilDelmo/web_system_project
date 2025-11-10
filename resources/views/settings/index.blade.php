@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Settings - Cuevas Bakery</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/cuevaslogo.png') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
@@ -83,7 +84,10 @@
     <div class="content">
         <div class="container-fluid">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2><i class="bi bi-gear-fill me-2"></i>Settings</h2>
+                <div class="d-flex align-items-center gap-3">
+                    <img src="{{ asset('images/cuevaslogo.png') }}" alt="Cuevas Bakery Logo" style="height: 40px;">
+                    <h2 class="mb-0"><i class="bi bi-gear-fill me-2"></i>Settings</h2>
+                </div>
                 <a href="{{ route('dashboard') }}" class="btn btn-outline-secondary">
                     <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
                 </a>
