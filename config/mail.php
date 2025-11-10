@@ -30,7 +30,7 @@ return [
     | your mailers below. You may also add additional mailers if needed.
     |
     | Supported: "smtp", "sendmail", "mailgun", "ses", "ses-v2",
-    |            "postmark", "resend", "log", "array",
+    |            "postmark", "brevo", "resend", "log", "array",
     |            "failover", "roundrobin"
     |
     */
@@ -59,6 +59,11 @@ return [
             // 'client' => [
             //     'timeout' => 5,
             // ],
+        ],
+
+        'brevo' => [
+            'transport' => 'brevo',
+            'dsn' => env('MAIL_BREVO_DSN'),
         ],
 
         'resend' => [

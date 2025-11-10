@@ -2,7 +2,10 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\ServiceProvider;
+use InvalidArgumentException;
+use Symfony\Component\Mailer\Transport;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +22,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Mail::extend('brevo', function (array $config) {
+            $dsn = $config['dsn'] ?? null;
+
+            if (! $dsn) {
+                throw new InvalidArgumentException('Brevo DSN is not configured.');
+            }
+
+            // Use Symfony Mailer factory so we can leverage Brevo API transport.
+            return Transport::fromDsn($dsn);
+        });
     }
 }
