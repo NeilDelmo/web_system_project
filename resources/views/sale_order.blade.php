@@ -224,7 +224,6 @@
                 </a>
 
                 <ul class="dropdown-menu shadow border-0 mt-2 text-center" aria-labelledby="adminMenu">
-                    <li><a class="dropdown-item py-2" href="#"><i class="bi bi-person-circle me-1"></i> Profile</a></li>
                     @role('admin')
                     <li><a class="dropdown-item py-2" href="{{ route('settings.index') }}"><i class="bi bi-gear me-1"></i> Settings</a></li>
                     @endrole

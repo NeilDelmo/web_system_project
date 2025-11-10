@@ -197,7 +197,6 @@
           <small class="text-muted" style="font-size: 0.75rem;">{{ auth()->user()->roles->first()->name ?? 'User' }}</small>
         </a>
         <ul class="dropdown-menu shadow border-0 text-center" aria-labelledby="adminMenu">
-          <li><a class="dropdown-item py-1" href="#"><i class="bi bi-person-circle me-1"></i> Profile</a></li>
           @role('admin')
           <li><a class="dropdown-item py-1" href="{{ route('settings.index') }}"><i class="bi bi-gear me-1"></i> Settings</a></li>
           @endrole
