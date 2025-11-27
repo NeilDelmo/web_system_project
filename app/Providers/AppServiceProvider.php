@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Pagination\Paginator;
 use InvalidArgumentException;
 use Symfony\Component\Mailer\Transport;
 
@@ -22,6 +23,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Paginator::useBootstrapFive();
+
         Mail::extend('brevo', function (array $config) {
             $dsn = $config['dsn'] ?? null;
 

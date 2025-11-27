@@ -17,6 +17,11 @@
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
+    /* Fix for large pagination icons if Tailwind styles are missing */
+    .pagination svg, nav[role="navigation"] svg {
+      width: 20px;
+      height: 20px;
+    }
   </style>
 </head>
 <body>
@@ -137,7 +142,7 @@
           <!-- Pagination -->
           @if($audits->hasPages())
             <div class="d-flex justify-content-center mt-4">
-              {{ $audits->links() }}
+              {{ $audits->onEachSide(1)->links() }}
             </div>
           @endif
         </div>

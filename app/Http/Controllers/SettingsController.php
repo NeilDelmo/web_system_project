@@ -205,7 +205,7 @@ class SettingsController extends Controller
     {
         $audits = \OwenIt\Auditing\Models\Audit::with('user')
             ->orderBy('created_at', 'desc')
-            ->paginate(50);
+            ->paginate(10);
 
         return view('settings.audit-logs', compact('audits'));
     }

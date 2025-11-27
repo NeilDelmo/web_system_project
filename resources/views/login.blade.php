@@ -21,7 +21,6 @@
       display: flex;
       align-items: center;
     }
-
     .login-card {
       border: none;
       border-radius: 30px;
