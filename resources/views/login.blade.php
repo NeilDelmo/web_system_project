@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cuevas Bread</title>
+  <title>{{ $bakeryInfo['name'] ?? 'Cuevas Bread' }}</title>
   <link rel="icon" type="image/png" href="{{ asset('images/cuevaslogo.png') }}">
 
   <!-- Bootstrap 5 CSS -->
@@ -117,7 +117,7 @@
       <div class="col-md-6 form-section">
         <div class="d-flex align-items-center justify-content-center gap-2 mb-3">
           <img src="{{ asset('images/cuevaslogo.png') }}" alt="Cuevas Bakery Logo" style="height: 45px;">
-          <h2 class="login-title mb-0">Cuevas Bakery</h2>
+          <h2 class="login-title mb-0">{{ $bakeryInfo['name'] ?? 'Cuevas Bakery' }}</h2>
         </div>
         <p class="text-center fw-semibold mb-4">Welcome Back!</p>
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard - Cuevas Bakery</title>
+  <title>Dashboard - {{ $bakeryInfo['name'] ?? 'Cuevas Bakery' }}</title>
   <link rel="icon" type="image/png" href="{{ asset('images/cuevaslogo.png') }}">
 
   <!-- Google Font -->
@@ -223,7 +223,7 @@
             <img src="{{ asset('images/cuevaslogo.png') }}" alt="Cuevas Bakery Logo" style="height: 50px;">
             <h3 class="card-title mb-0">Welcome, {{ auth()->user()?->full_name ?? auth()->user()?->username ?? 'User' }}</h3>
           </div>
-          <p class="card-text text-muted">You are now logged in to the Cuevas Bakery system.</p>
+          <p class="card-text text-muted">You are now logged in to the {{ $bakeryInfo['name'] ?? 'Cuevas Bakery' }} system.</p>
         </div>
       </div>
 
@@ -368,7 +368,7 @@
     </div>
 
       <footer class="text-center py-3 mt-4 bg-white border-top small text-muted">
-        &copy; {{ date('Y') }} Cuevas Bread. All rights reserved.
+        &copy; {{ date('Y') }} {{ $bakeryInfo['name'] ?? 'Cuevas Bread' }}. All rights reserved.
       </footer>
     </div>
   </main>

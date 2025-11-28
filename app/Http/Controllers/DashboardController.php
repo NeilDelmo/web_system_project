@@ -9,6 +9,7 @@ use App\Models\Products;
 use App\Models\Orders;
 use App\Models\ProductionLog;
 use App\Models\Ingredients;
+use App\Models\SystemSetting;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -16,10 +17,13 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        // Get settings
+        $lowStockThreshold = SystemSetting::get('low_stock_threshold', 10);
+
         // Get statistics
         $totalProducts = Products::count();
         $pendingOrders = Orders::where('status', 'pending')->count();
-        $lowStockProducts = Products::where('stock_quantity', '<', 10)->count();
+        $lowStockProducts = Products::where('stock_quantity', '<', $lowStockThreshold)->count();
         $lowStockIngredients = Ingredients::whereIn('status', ['low_stock', 'out_of_stock'])->count();
         $totalLowStock = $lowStockProducts + $lowStockIngredients;
         
@@ -38,7 +42,7 @@ class DashboardController extends Controller
             ->get();
         
         // Low stock alerts
-        $lowStockProductsList = Products::where('stock_quantity', '<', 10)
+        $lowStockProductsList = Products::where('stock_quantity', '<', $lowStockThreshold)
             ->orderBy('stock_quantity', 'asc')
             ->limit(5)
             ->get();

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Products Management</title>
+    <title>Products Management - {{ $bakeryInfo['name'] ?? 'Cuevas Bakery' }}</title>
     <link rel="icon" type="image/png" href="{{ asset('images/cuevaslogo.png') }}">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <!-- Bootstrap CSS -->
@@ -512,7 +512,7 @@
             </div>
 
             <footer class="text-center py-3 border-top bg-white small text-muted mt-5">
-                &copy; {{ date('Y') }} Cuevas Bread. All rights reserved.
+                &copy; {{ date('Y') }} {{ $bakeryInfo['name'] ?? 'Cuevas Bread' }}. All rights reserved.
             </footer>
         </main>
 
