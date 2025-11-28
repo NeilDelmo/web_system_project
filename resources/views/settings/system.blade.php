@@ -161,7 +161,7 @@
         .then(response => response.json())
         .then(data => {
             if(data.success) {
-                alert('Test email sent successfully! Check your inbox.');
+                alert(data.message || 'Test email sent successfully! Check your inbox.');
             } else {
                 alert('Failed to send test email: ' + data.message);
             }

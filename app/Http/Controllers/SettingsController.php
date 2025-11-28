@@ -205,15 +205,32 @@ class SettingsController extends Controller
     public function testEmail()
     {
         try {
-            $to = SystemSetting::get('bakery_email', auth()->user()->email);
+            $to = null;
+            
+            try {
+                $to = SystemSetting::get('bakery_email');
+            } catch (\Exception $e) {
+                // Log the error but continue to try fallback
+                \Illuminate\Support\Facades\Log::error('Database error fetching bakery_email: ' . $e->getMessage());
+            }
+
+            // Fallback to logged in user's email
+            if (empty($to) && auth()->check()) {
+                $to = auth()->user()->email;
+            }
+
+            if (empty($to)) {
+                throw new \Exception('No recipient email found. Please set a Bakery Email or log in.');
+            }
             
             Mail::raw('This is a test email from Cuevas Bakery Management System.', function ($message) use ($to) {
                 $message->to($to)
                         ->subject('Test Email - Cuevas Bakery');
             });
             
-            return response()->json(['success' => true]);
+            return response()->json(['success' => true, 'message' => 'Test email sent to ' . $to]);
         } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Test email failed: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
