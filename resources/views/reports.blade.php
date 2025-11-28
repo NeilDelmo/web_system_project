@@ -335,7 +335,7 @@
 
                 <!-- Sales by Order Type -->
                 <div class="row mb-4">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <div class="card">
                             <div class="card-header bg-white">
                                 <h6 class="mb-0 fw-semibold">Sales by Order Type</h6>
@@ -345,7 +345,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-8">
                         <div class="card">
                             <div class="card-header bg-white">
                                 <h6 class="mb-0 fw-semibold">Order Type Summary</h6>
