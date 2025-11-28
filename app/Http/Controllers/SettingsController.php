@@ -152,14 +152,6 @@ class SettingsController extends Controller
             'low_stock_threshold' => SystemSetting::get('low_stock_threshold', '10'),
             'notify_orders' => SystemSetting::get('notify_orders', '1'),
             'notify_production' => SystemSetting::get('notify_production', '1'),
-            'mail_mailer' => SystemSetting::get('mail_mailer', 'smtp'),
-            'mail_host' => SystemSetting::get('mail_host', 'smtp.mailtrap.io'),
-            'mail_port' => SystemSetting::get('mail_port', '2525'),
-            'mail_username' => SystemSetting::get('mail_username', ''),
-            'mail_password' => SystemSetting::get('mail_password', ''),
-            'mail_encryption' => SystemSetting::get('mail_encryption', 'tls'),
-            'mail_from_address' => SystemSetting::get('mail_from_address', 'noreply@cuevasbakery.com'),
-            'mail_from_name' => SystemSetting::get('mail_from_name', 'Cuevas Bakery'),
         ];
 
         return view('settings.system', compact('settings'));
@@ -210,40 +202,19 @@ class SettingsController extends Controller
         return view('settings.audit-logs', compact('audits'));
     }
 
-    //email settings
-
-    public function updateEmailSettings(Request $request)
+    public function testEmail()
     {
-        $validated = $request->validate([
-            'mail_mailer' => 'required|string|max:255',
-            'mail_host' => 'required|string|max:255',
-            'mail_port' => 'required|integer|min:1|max:65535',
-            'mail_username' => 'nullable|string|max:255',
-            'mail_password' => 'nullable|string|max:255',
-            'mail_from_address' => 'required|email|max:255',
-            'mail_from_name' => 'required|string|max:255',
-        ]);
-
-        foreach ($validated as $key => $value) {
-            SystemSetting::set($key, $value);
+        try {
+            $to = SystemSetting::get('bakery_email', auth()->user()->email);
+            
+            Mail::raw('This is a test email from Cuevas Bakery Management System.', function ($message) use ($to) {
+                $message->to($to)
+                        ->subject('Test Email - Cuevas Bakery');
+            });
+            
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
-
-        return redirect()->route('settings.system')->with('success', 'Email settings updated successfully!');
     }
-
-public function testEmail()
-{
-    try {
-        $to = SystemSetting::get('bakery_email', auth()->user()->email);
-        
-        Mail::raw('This is a test email from Cuevas Bakery Management System.', function ($message) use ($to) {
-            $message->to($to)
-                    ->subject('Test Email - Cuevas Bakery');
-        });
-        
-        return response()->json(['success' => true]);
-    } catch (\Exception $e) {
-        return response()->json(['success' => false, 'message' => $e->getMessage()]);
-    }
-}
 }

@@ -8,8 +8,13 @@ use App\Models\Orders;
 use App\Models\OrderItems;
 use App\Models\Products;
 use App\Models\PricingRule;
+use App\Models\SystemSetting;
+use App\Mail\OrderPlaced;
+use App\Mail\LowStockAlert;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class Sale_OrderController extends Controller
 {
@@ -133,9 +138,30 @@ class Sale_OrderController extends Controller
 
                 // Deduct from stock
                 $product->decrement('stock_quantity', $quantity);
+
+                // Check for low stock
+                $threshold = SystemSetting::get('low_stock_threshold', 10);
+                if ($product->stock_quantity <= $threshold) {
+                    try {
+                        if (SystemSetting::get('notify_low_stock') && SystemSetting::get('bakery_email')) {
+                            Mail::to(SystemSetting::get('bakery_email'))->send(new LowStockAlert($product));
+                        }
+                    } catch (\Exception $e) {
+                        Log::error('Failed to send product low stock email: ' . $e->getMessage());
+                    }
+                }
             }
 
             DB::commit();
+
+            // Send Email Notification
+            try {
+                if (SystemSetting::get('notify_orders') && SystemSetting::get('bakery_email')) {
+                    Mail::to(SystemSetting::get('bakery_email'))->send(new OrderPlaced($order));
+                }
+            } catch (\Exception $e) {
+                Log::error('Failed to send order email: ' . $e->getMessage());
+            }
 
             $order->load(['staff', 'items.product']);
 

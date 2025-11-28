@@ -6,6 +6,10 @@ use App\Models\Products;
 use App\Models\Recipe;
 use App\Models\Ingredients;
 use App\Models\ProductionLog;
+use App\Models\SystemSetting;
+use App\Mail\ProductionCompleted;
+use App\Mail\LowStockAlert;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -128,6 +132,17 @@ class ProductionController extends Controller
                 }
                 
                 $ingredient->save();
+
+                // Send Low Stock Alert
+                if ($ingredient->quantity <= $ingredient->reorder_level) {
+                    try {
+                        if (SystemSetting::get('notify_low_stock') && SystemSetting::get('bakery_email')) {
+                            Mail::to(SystemSetting::get('bakery_email'))->send(new LowStockAlert($ingredient));
+                        }
+                    } catch (\Exception $e) {
+                        Log::error('Failed to send low stock email: ' . $e->getMessage());
+                    }
+                }
                 
                 $ingredientsUsed[] = [
                     'ingredient_id' => $ingredient->id,
@@ -145,7 +160,7 @@ class ProductionController extends Controller
             $userId = Auth::id();
             Log::info('Creating production log with user ID: ' . $userId);
             
-            ProductionLog::create([
+            $productionLog = ProductionLog::create([
                 'product_id' => $product->id,
                 'quantity_produced' => $validated['quantity'],
                 'ingredients_used' => $ingredientsUsed,
@@ -156,6 +171,15 @@ class ProductionController extends Controller
             ]);
 
             DB::commit();
+
+            // Send Production Email
+            try {
+                if (SystemSetting::get('notify_production') && SystemSetting::get('bakery_email')) {
+                    Mail::to(SystemSetting::get('bakery_email'))->send(new ProductionCompleted($productionLog));
+                }
+            } catch (\Exception $e) {
+                Log::error('Failed to send production email: ' . $e->getMessage());
+            }
 
             // Check if request expects JSON (AJAX)
             if ($request->expectsJson() || $request->ajax()) {
