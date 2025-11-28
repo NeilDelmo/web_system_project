@@ -62,7 +62,7 @@
                   </div>
                   <div class="col-md-6 mb-3">
                     <label class="form-label">Phone Number</label>
-                    <input type="text" name="bakery_phone" class="form-control" value="{{ $settings['bakery_phone'] }}">
+                    <input type="tel" name="bakery_phone" class="form-control" value="{{ $settings['bakery_phone'] }}" pattern="[0-9+\-\s()]*" title="Only numbers, spaces, dashes, and parentheses are allowed">
                   </div>
                   <div class="col-md-6 mb-3">
                     <label class="form-label">Email Address</label>

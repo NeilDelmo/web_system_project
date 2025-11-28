@@ -162,7 +162,7 @@ class SettingsController extends Controller
         $validated = $request->validate([
             'bakery_name' => 'required|string|max:255',
             'bakery_address' => 'nullable|string|max:500',
-            'bakery_phone' => 'nullable|string|max:20',
+            'bakery_phone' => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\-\s()]*$/'],
             'bakery_email' => 'nullable|email|max:255',
             'operating_hours' => 'nullable|string|max:500',
         ]);
