@@ -194,7 +194,7 @@
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
         <div class="brand d-flex align-items-center justify-content-center">
-            <img src="{{ asset('images/logo.png') }}" alt="Cuevas Bread Logo" class="sidebar-logo">
+            <img src="{{ asset('images/logo.png') }}" alt="{{ $bakeryInfo['name'] ?? 'Cuevas Bread' }} Logo" class="sidebar-logo">
             <div class="sidebar-toggle text-dark" id="sidebarToggle">
                 <i class="bi bi-chevron-left"></i>
             </div>
@@ -245,7 +245,7 @@
     <main class="main-content" id="mainContent">
         <div class="page-header">
             <div class="d-flex align-items-center gap-3">
-                <img src="{{ asset('images/cuevaslogo.png') }}" alt="Cuevas Bakery Logo" style="height: 40px;">
+                <img src="{{ asset('images/cuevaslogo.png') }}" alt="{{ $bakeryInfo['name'] ?? 'Cuevas Bakery' }} Logo" style="height: 40px;">
                 <div>
                     <h2 class="fw-bold mb-0">Sales & Orders</h2>
                     <p class="text-muted mb-0 small">Manage all bakery sales, customers, and order transactions.</p>
@@ -418,7 +418,7 @@
         </div>
         <!-- Footer -->
         <footer class="text-center py-3 border-top bg-white small text-muted mt-5">
-            &copy; {{ date('Y') }} Cuevas Bread. All rights reserved.
+            &copy; {{ date('Y') }} {{ $bakeryInfo['name'] ?? 'Cuevas Bread' }}. All rights reserved.
         </footer>
     </main>
 

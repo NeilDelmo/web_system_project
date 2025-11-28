@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Audit Logs - Cuevas Bakery</title>
+  <title>Audit Logs - {{ $bakeryInfo['name'] ?? 'Cuevas Bakery' }}</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
   <link href="{{ asset('css/style.css') }}" rel="stylesheet">
@@ -149,7 +149,7 @@
       </div>
 
   <footer class="mt-5 mb-3 text-center">
-    <p class="text-muted small">© 2025 Cuevas Bakery. All rights reserved.</p>
+    <p class="text-muted small">© {{ date('Y') }} {{ $bakeryInfo['name'] ?? 'Cuevas Bakery' }}. All rights reserved.</p>
   </footer>
 </div>
 

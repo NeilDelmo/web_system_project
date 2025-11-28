@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Settings - Cuevas Bakery</title>
+    <title>Settings - {{ $bakeryInfo['name'] ?? 'Cuevas Bakery' }}</title>
     <link rel="icon" type="image/png" href="{{ asset('images/cuevaslogo.png') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
@@ -85,7 +85,7 @@
         <div class="container-fluid">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div class="d-flex align-items-center gap-3">
-                    <img src="{{ asset('images/cuevaslogo.png') }}" alt="Cuevas Bakery Logo" style="height: 40px;">
+                    <img src="{{ asset('images/cuevaslogo.png') }}" alt="{{ $bakeryInfo['name'] ?? 'Cuevas Bakery' }} Logo" style="height: 40px;">
                     <h2 class="mb-0"><i class="bi bi-gear-fill me-2"></i>Settings</h2>
                 </div>
                 <a href="{{ route('dashboard') }}" class="btn btn-outline-secondary">
@@ -150,7 +150,7 @@
         </div>
 
         <footer class="text-center py-3 mt-5 bg-white border-top small text-muted">
-            &copy; {{ date('Y') }} Cuevas Bread. All rights reserved.
+            &copy; {{ date('Y') }} {{ $bakeryInfo['name'] ?? 'Cuevas Bread' }}. All rights reserved.
         </footer>
     </div>
 

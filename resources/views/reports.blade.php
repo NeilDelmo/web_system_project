@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reports | Cuevas Bread</title>
+    <title>Reports | {{ $bakeryInfo['name'] ?? 'Cuevas Bread' }}</title>
     <link rel="icon" type="image/png" href="{{ asset('images/cuevaslogo.png') }}">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -184,7 +184,7 @@
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
         <div class="brand d-flex align-items-center justify-content-center">
-            <img src="{{ asset('images/logo.png') }}" alt="Cuevas Bread Logo" class="sidebar-logo">
+            <img src="{{ asset('images/logo.png') }}" alt="{{ $bakeryInfo['name'] ?? 'Cuevas Bread' }} Logo" class="sidebar-logo">
              <div class="sidebar-toggle text-dark" id="sidebarToggle">
                 <i class="bi bi-chevron-left"></i>
             </div>
@@ -236,7 +236,7 @@
     <main class="main-content" id="mainContent">
         <div class="page-header">
             <div class="d-flex align-items-center gap-3">
-                <img src="{{ asset('images/cuevaslogo.png') }}" alt="Cuevas Bakery Logo" style="height: 40px;">
+                <img src="{{ asset('images/cuevaslogo.png') }}" alt="{{ $bakeryInfo['name'] ?? 'Cuevas Bakery' }} Logo" style="height: 40px;">
                 <div>
                     <h2 class="fw-semibold mb-1">Reports Management</h2>
                     <p class="text-muted mb-0 small">View and export detailed analytics across all operations.</p>
@@ -842,7 +842,7 @@
 
         <!-- Footer -->
         <footer class="text-center py-3 border-top bg-white small text-muted mt-5">
-            &copy; {{ date('Y') }} Cuevas Bread. All rights reserved.
+            &copy; {{ date('Y') }} {{ $bakeryInfo['name'] ?? 'Cuevas Bread' }}. All rights reserved.
         </footer>
     </main>
 </div>

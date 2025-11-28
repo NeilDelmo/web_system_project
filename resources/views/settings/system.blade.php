@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>System Settings - Cuevas Bakery</title>
+  <title>System Settings - {{ $bakeryInfo['name'] ?? 'Cuevas Bakery' }}</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
   <link href="{{ asset('css/style.css') }}" rel="stylesheet">
@@ -128,12 +128,12 @@
           </div>
           <div class="col-md-6 mb-3">
             <label class="form-label">Bakery Name *</label>
-            <input type="text" name="mail_from_name" class="form-control" value="{{ $settings['mail_from_name'] }}" placeholder="Cuevas Bakery" required>
+            <input type="text" name="mail_from_name" class="form-control" value="{{ $settings['mail_from_name'] }}" placeholder="My Bakery" required>
             <small class="text-muted">How your bakery name appears in emails</small>
           </div>
           <div class="col-md-6 mb-3">
             <label class="form-label">Reply-To Email *</label>
-            <input type="email" name="mail_from_address" class="form-control" value="{{ $settings['mail_from_address'] }}" placeholder="info@cuevasbakery.com" required>
+            <input type="email" name="mail_from_address" class="form-control" value="{{ $settings['mail_from_address'] }}" placeholder="info@mybakery.com" required>
             <small class="text-muted">Where customers can reply to (can be same as Gmail)</small>
           </div>
         </div>
@@ -202,7 +202,7 @@
       </div>
 
   <footer class="mt-5 mb-3 text-center">
-    <p class="text-muted small">© 2025 Cuevas Bakery. All rights reserved.</p>
+    <p class="text-muted small">© {{ date('Y') }} {{ $bakeryInfo['name'] ?? 'Cuevas Bakery' }}. All rights reserved.</p>
   </footer>
 </div>
 
