@@ -131,9 +131,6 @@
                 <button type="submit" class="btn btn-warning">
                   <i class="bi bi-save me-1"></i> Save Preferences
                 </button>
-                <button type="button" class="btn btn-outline-secondary ms-2" onclick="testEmail()">
-                  <i class="bi bi-send me-1"></i> Send Test Email
-                </button>
               </form>
             </div>
           </div>
@@ -148,27 +145,4 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-<script>
-  function testEmail() {
-    if(confirm('Send a test email to your bakery email address?')) {
-        fetch('{{ route("settings.test-email") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if(data.success) {
-                alert(data.message || 'Test email sent successfully! Check your inbox.');
-            } else {
-                alert('Failed to send test email: ' + data.message);
-            }
-        })
-        .catch(error => {
-            alert('Error sending test email.');
-        });
-    }
-}
 </html>
