@@ -137,13 +137,15 @@ class Sale_OrderController extends Controller
                 ]);
 
                 // Deduct from stock
-                $product->decrement('stock_quantity', $quantity);
+                // We update the instance directly so we can check the new value immediately
+                $product->stock_quantity -= $quantity;
+                $product->save();
 
                 // Check for low stock
-                $threshold = SystemSetting::get('low_stock_threshold', 10);
+                $threshold = (int) SystemSetting::get('low_stock_threshold', 10);
                 if ($product->stock_quantity <= $threshold) {
                     try {
-                        if (SystemSetting::get('notify_low_stock') && SystemSetting::get('bakery_email')) {
+                        if (SystemSetting::get('notify_low_stock') == '1' && SystemSetting::get('bakery_email')) {
                             Mail::to(SystemSetting::get('bakery_email'))->send(new LowStockAlert($product));
                         }
                     } catch (\Exception $e) {
